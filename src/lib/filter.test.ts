@@ -74,6 +74,19 @@ describe("filterCamps", () => {
     expect(filterCamps(camps, { categories: ["STEM"] }).map((c) => c.catalogId)).toEqual(["stem"]);
   });
 
+  it("filters by registration phase (excludes unknown-phase venues)", () => {
+    const camps = [
+      camp({ catalogId: "green1", venue: "Audrey Moore Rec Center" }),
+      camp({ catalogId: "blue1", venue: "Cub Run Rec Center" }),
+      camp({ catalogId: "unknown1", venue: "GMUFieldHouse" }),
+    ];
+    expect(filterCamps(camps, { phases: ["green"] }).map((c) => c.catalogId)).toEqual(["green1"]);
+    expect(filterCamps(camps, { phases: ["green", "blue"] }).map((c) => c.catalogId).sort()).toEqual([
+      "blue1",
+      "green1",
+    ]);
+  });
+
   it("filters by venue/location set", () => {
     const camps = [
       camp({ catalogId: "a", venue: "Audrey Moore Rec Center" }),

@@ -1,3 +1,4 @@
+import { phaseForVenue } from "./phase";
 import type { Camp, FilterCriteria } from "./types";
 
 /** True when [aStart,aEnd] overlaps [bStart,bEnd] (inclusive, ISO date strings). */
@@ -16,6 +17,7 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const categories = f.categories && f.categories.length ? new Set(f.categories) : null;
   const weekLabels = f.weekLabels && f.weekLabels.length ? new Set(f.weekLabels) : null;
   const venues = f.venues && f.venues.length ? new Set(f.venues) : null;
+  const phases = f.phases && f.phases.length ? new Set(f.phases) : null;
 
   return camps.filter((c) => {
     // Date overlap
@@ -36,6 +38,11 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
     if (categories && !categories.has(c.category)) return false;
     if (weekLabels && !weekLabels.has(c.weekLabel)) return false;
     if (venues && !venues.has(c.venue)) return false;
+    // Registration phase (unknown-phase venues are excluded when a phase is chosen).
+    if (phases) {
+      const p = phaseForVenue(c.venue);
+      if (p === "unknown" || !phases.has(p)) return false;
+    }
 
     // Virtual handling
     if (c.isVirtual) {

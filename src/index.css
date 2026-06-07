@@ -88,6 +88,19 @@ button {
 
 .checklist { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
 .venue-search { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; margin-bottom: 6px; }
+
+.phase-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.phase-pill {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.phase-pill.green.on { background: #e7f5ea; border-color: #2f9e44; color: #1b6e2e; font-weight: 600; }
+.phase-pill.blue.on { background: #e7f0fb; border-color: #1f77b4; color: #155389; font-weight: 600; }
 .checklist label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); margin: 2px 0; }
 
 .main {

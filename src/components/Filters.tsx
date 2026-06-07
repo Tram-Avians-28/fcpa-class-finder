@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { type Phase, PHASE_LABELS, phaseForVenue } from "../lib/phase";
 import type { FilterCriteria } from "../lib/types";
 
 interface Props {
@@ -20,10 +21,14 @@ function toggle(list: string[] | undefined, value: string): string[] {
 
 export function Filters({ criteria, onChange, onReset, categories, weekLabels, venues, feeBounds }: Props) {
   const [venueSearch, setVenueSearch] = useState("");
-  const shownVenues = venueSearch.trim()
-    ? venues.filter((v) => v.toLowerCase().includes(venueSearch.trim().toLowerCase()))
-    : venues;
   const selectedVenues = criteria.venues ?? [];
+  const selectedPhases = criteria.phases ?? [];
+  const search = venueSearch.trim().toLowerCase();
+  const shownVenues = venues.filter(
+    (v) =>
+      (selectedPhases.length === 0 || selectedPhases.includes(phaseForVenue(v) as Phase)) &&
+      (!search || v.toLowerCase().includes(search)),
+  );
   return (
     <>
       <h2>Dates</h2>
@@ -104,6 +109,19 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
         Location
         {selectedVenues.length ? <span className="count-pill">{selectedVenues.length}</span> : null}
       </h2>
+      <div className="phase-row">
+        {(["green", "blue"] as Phase[]).map((p) => (
+          <button
+            key={p}
+            className={`phase-pill ${p} ${selectedPhases.includes(p) ? "on" : ""}`}
+            title={`${PHASE_LABELS[p]} (registration phase)`}
+            aria-pressed={selectedPhases.includes(p)}
+            onClick={() => onChange({ phases: toggle(criteria.phases, p) as Phase[] })}
+          >
+            {p === "green" ? "Green · Feb 3" : "Blue · Feb 5"}
+          </button>
+        ))}
+      </div>
       <input
         type="text"
         className="venue-search"

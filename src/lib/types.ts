@@ -62,5 +62,6 @@ export interface FilterCriteria {
   categories?: string[]; // keep camps whose category is in this set
   weekLabels?: string[]; // keep camps whose weekLabel is in this set
   venues?: string[]; // keep camps whose venue (location) is in this set
+  phases?: ("green" | "blue")[]; // keep camps whose registration phase is in this set
   includeVirtual?: boolean; // default true; when a drive-time cap is set, virtual camps are kept only if this is true
 }
