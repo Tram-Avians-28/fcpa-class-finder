@@ -13,3 +13,4 @@ ors.key
 *.log
 .vite
 coverage
+phase-check-report.txt

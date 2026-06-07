@@ -32,10 +32,20 @@ button {
 .topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 5px 16px;
   background: var(--accent);
   color: var(--accent-ink);
+}
+.filters-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
 }
 .topbar h1 { font-size: 15px; margin: 0; font-weight: 650; }
 .topbar .spacer { flex: 1; }
@@ -60,6 +70,13 @@ button {
 }
 @media (max-width: 820px) {
   .layout { grid-template-columns: 1fr; }
+  .filters-toggle { display: inline-block; }
+  /* Sidebar becomes a collapsible drawer above the content. */
+  .sidebar { display: none; border-right: none; border-bottom: 1px solid var(--line); max-height: 65vh; }
+  .sidebar.open { display: block; }
+  .main { padding: 12px; }
+  .map-wrap { height: 300px; }
+  .topbar .status { font-size: 11px; }
 }
 
 .sidebar {
@@ -131,6 +148,7 @@ button {
 .error { color: #b22; font-size: 13px; margin-top: 8px; }
 .drive-error { background: #fdecea; border: 1px solid #f5c6cb; border-radius: 6px; padding: 6px 8px; }
 
+.table-wrap { overflow-x: auto; }
 table.camps { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--panel); }
 table.camps th, table.camps td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 table.camps th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 600; }

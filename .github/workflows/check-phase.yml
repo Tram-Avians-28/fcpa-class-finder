@@ -1,0 +1,38 @@
+name: Phase map re-check
+
+# The Blue/Green split is hand-transcribed from an image, so it can't auto-update.
+# Monthly, check whether the map image changed or new venues lack a phase; if so,
+# open an issue so a human can re-transcribe src/data/phase.json.
+on:
+  schedule:
+    - cron: "0 10 1 * *" # 1st of the month, after the data refresh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - id: check
+        run: node scripts/check-phase.mjs
+        continue-on-error: true
+      - name: Open an issue if the mapping needs review
+        if: steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Blue/Green phase mapping needs review ($(date +%Y-%m))" \
+            --body-file phase-check-report.txt

@@ -43,6 +43,7 @@ export default function App() {
   const [criteria, setCriteria] = useState<FilterCriteria>({ includeVirtual: true });
   const [tab, setTab] = useState<Tab>("calendar");
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false); // mobile drawer
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Dataset provenance: when the cached upload was saved, whether we're on the
@@ -193,6 +194,15 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>FFX Camps</h1>
+        {camps.length > 0 ? (
+          <button
+            className="filters-toggle"
+            aria-expanded={filtersOpen}
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            {filtersOpen ? "Hide filters" : "Filters"}
+          </button>
+        ) : null}
         <span className="status">
           {camps.length > 0
             ? `${fileName} · ${filtered.length} of ${camps.length} camps`
@@ -258,7 +268,7 @@ export default function App() {
             </div>
           ) : null}
           <div className="layout">
-            <aside className="sidebar">
+            <aside className={`sidebar ${filtersOpen ? "open" : ""}`}>
             <DrivePanel
               orsKey={orsKey}
               onOrsKey={setOrsKey}

@@ -26,6 +26,7 @@ interface Props {
 
 export function CampTable({ camps, shortlist, onToggleShortlist, showDrive = false }: Props) {
   return (
+    <div className="table-wrap">
     <table className="camps">
       <thead>
         <tr>
@@ -81,5 +82,6 @@ export function CampTable({ camps, shortlist, onToggleShortlist, showDrive = fal
         })}
       </tbody>
     </table>
+    </div>
   );
 }
