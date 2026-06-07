@@ -5,7 +5,7 @@ import { DrivePanel } from "./components/DrivePanel";
 import { Filters } from "./components/Filters";
 import gazetteerData from "./data/gazetteer.json";
 import { applyDriveTimes, uniqueVenuePoints, venueMinutesMap } from "./lib/drivetime";
-import { distinctCategories, distinctWeekLabels, filterCamps } from "./lib/filter";
+import { distinctCategories, distinctVenues, distinctWeekLabels, filterCamps } from "./lib/filter";
 import { driveMatrixMinutes, geocodeAddress } from "./lib/ors";
 import { enrichWithGazetteer, parseWorkbook } from "./lib/parse";
 import { toggleId } from "./lib/shortlist";
@@ -167,6 +167,7 @@ export default function App() {
 
   const categories = useMemo(() => distinctCategories(camps), [camps]);
   const weekLabels = useMemo(() => distinctWeekLabels(camps), [camps]);
+  const venueOptions = useMemo(() => distinctVenues(camps), [camps]);
   const feeBounds = useMemo(() => {
     if (camps.length === 0) return { min: 0, max: 1000 };
     const fees = camps.map((c) => c.fee);
@@ -277,6 +278,7 @@ export default function App() {
               onReset={reset}
               categories={categories}
               weekLabels={weekLabels}
+              venues={venueOptions}
               feeBounds={feeBounds}
             />
           </aside>

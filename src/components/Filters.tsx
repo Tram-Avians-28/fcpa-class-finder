@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { FilterCriteria } from "../lib/types";
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   onReset: () => void;
   categories: string[];
   weekLabels: string[];
+  venues: string[];
   feeBounds: { min: number; max: number };
 }
 
@@ -16,7 +18,12 @@ function toggle(list: string[] | undefined, value: string): string[] {
   return [...set];
 }
 
-export function Filters({ criteria, onChange, onReset, categories, weekLabels, feeBounds }: Props) {
+export function Filters({ criteria, onChange, onReset, categories, weekLabels, venues, feeBounds }: Props) {
+  const [venueSearch, setVenueSearch] = useState("");
+  const shownVenues = venueSearch.trim()
+    ? venues.filter((v) => v.toLowerCase().includes(venueSearch.trim().toLowerCase()))
+    : venues;
+  const selectedVenues = criteria.venues ?? [];
   return (
     <>
       <h2>Dates</h2>
@@ -91,6 +98,31 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, f
             {wk}
           </label>
         ))}
+      </div>
+
+      <h2>
+        Location
+        {selectedVenues.length ? <span className="count-pill">{selectedVenues.length}</span> : null}
+      </h2>
+      <input
+        type="text"
+        className="venue-search"
+        placeholder="search locations…"
+        value={venueSearch}
+        onChange={(e) => setVenueSearch(e.target.value)}
+      />
+      <div className="checklist">
+        {shownVenues.map((v) => (
+          <label key={v}>
+            <input
+              type="checkbox"
+              checked={selectedVenues.includes(v)}
+              onChange={() => onChange({ venues: toggle(criteria.venues, v) })}
+            />
+            {v}
+          </label>
+        ))}
+        {shownVenues.length === 0 ? <div className="hint">no matching locations</div> : null}
       </div>
 
       <h2>Other</h2>

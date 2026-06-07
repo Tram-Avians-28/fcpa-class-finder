@@ -15,6 +15,7 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const includeVirtual = f.includeVirtual ?? true;
   const categories = f.categories && f.categories.length ? new Set(f.categories) : null;
   const weekLabels = f.weekLabels && f.weekLabels.length ? new Set(f.weekLabels) : null;
+  const venues = f.venues && f.venues.length ? new Set(f.venues) : null;
 
   return camps.filter((c) => {
     // Date overlap
@@ -31,9 +32,10 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
       if (c.ageMax != null && f.childAge > c.ageMax) return false;
     }
 
-    // Category / week label
+    // Category / week label / venue
     if (categories && !categories.has(c.category)) return false;
     if (weekLabels && !weekLabels.has(c.weekLabel)) return false;
+    if (venues && !venues.has(c.venue)) return false;
 
     // Virtual handling
     if (c.isVirtual) {

@@ -74,6 +74,17 @@ describe("filterCamps", () => {
     expect(filterCamps(camps, { categories: ["STEM"] }).map((c) => c.catalogId)).toEqual(["stem"]);
   });
 
+  it("filters by venue/location set", () => {
+    const camps = [
+      camp({ catalogId: "a", venue: "Audrey Moore Rec Center" }),
+      camp({ catalogId: "b", venue: "Lake Fairfax Park" }),
+      camp({ catalogId: "c", venue: "Frying Pan Park" }),
+    ];
+    expect(
+      filterCamps(camps, { venues: ["Audrey Moore Rec Center", "Frying Pan Park"] }).map((c) => c.catalogId),
+    ).toEqual(["a", "c"]);
+  });
+
   it("applies drive-time cap to physical camps and excludes unknown drive times", () => {
     const camps = [
       camp({ catalogId: "near", driveMinutes: 15 }),
