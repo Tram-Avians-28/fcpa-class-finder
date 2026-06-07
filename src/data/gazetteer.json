@@ -1,0 +1,592 @@
+{
+  "Acton Academy": {
+    "town": "Falls Church",
+    "lat": 38.88956,
+    "lng": -77.1822
+  },
+  "Aldrin Elementary School": {
+    "town": "Reston",
+    "lat": 38.979765,
+    "lng": -77.337854
+  },
+  "Annandale Park": {
+    "town": "Annandale",
+    "lat": 38.837848,
+    "lng": -77.212151
+  },
+  "Audrey Moore Rec Center": {
+    "town": "Annandale",
+    "lat": 38.81686,
+    "lng": -77.224251
+  },
+  "Bach to Rock McLean": {
+    "town": "McLean",
+    "lat": 38.938043,
+    "lng": -77.172078
+  },
+  "Back to Rock Herndon": {
+    "town": "Herndon",
+    "lat": 38.957087,
+    "lng": -77.400162
+  },
+  "Belle View Elementary School": {
+    "town": "Alexandria",
+    "lat": 38.77257,
+    "lng": -77.061269
+  },
+  "Braddock Elementary School": {
+    "town": "Annandale",
+    "lat": 38.822506,
+    "lng": -77.215507
+  },
+  "Braddock Park": {
+    "town": "Clifton",
+    "lat": 38.828097,
+    "lng": -77.409333
+  },
+  "Bricks & Minifigs Herndon": {
+    "town": "Herndon",
+    "lat": 38.966147,
+    "lng": -77.396775
+  },
+  "Bull Run Elementary School": {
+    "town": "Centreville",
+    "lat": 38.828388,
+    "lng": -77.475896
+  },
+  "Bull Run Park": {
+    "town": "Centreville",
+    "lat": 38.807547,
+    "lng": -77.476938
+  },
+  "Burke Lake Golf Course": {
+    "town": "Fairfax Station",
+    "lat": 38.765144,
+    "lng": -77.309604
+  },
+  "Burke Lake Park": {
+    "town": "Fairfax Station",
+    "lat": 38.762479,
+    "lng": -77.291917
+  },
+  "Camelot Elementary School": {
+    "town": "Annandale",
+    "lat": 38.848202,
+    "lng": -77.224712
+  },
+  "Canterbury Woods Elementary": {
+    "town": "Annandale",
+    "lat": 38.819963,
+    "lng": -77.249754
+  },
+  "Cardinal Forest Elementary School": {
+    "town": "Springfield",
+    "lat": 38.792444,
+    "lng": -77.241097
+  },
+  "Chantilly High School": {
+    "town": "Chantilly",
+    "lat": 38.879199,
+    "lng": -77.406943
+  },
+  "Cherry Run Elementary School": {
+    "town": "Burke",
+    "lat": 38.76839,
+    "lng": -77.283971
+  },
+  "Clark House": {
+    "town": "Alexandria",
+    "lat": 38.805213,
+    "lng": -77.042
+  },
+  "Colin Powell Elementary School": {
+    "town": "Centreville",
+    "lat": 38.845818,
+    "lng": -77.407484
+  },
+  "Colvin Run Elementary": {
+    "town": "Vienna",
+    "lat": 38.946978,
+    "lng": -77.264977
+  },
+  "Colvin Run Mill": {
+    "town": "Great Falls",
+    "lat": 38.968523,
+    "lng": -77.29305
+  },
+  "Cooper Middle School": {
+    "town": "McLean",
+    "lat": 38.951652,
+    "lng": -77.191728
+  },
+  "Craftspace": {
+    "town": "Chantilly",
+    "lat": 38.9106,
+    "lng": -77.450869
+  },
+  "Crestwood Elementary School": {
+    "town": "Springfield",
+    "lat": 38.786933,
+    "lng": -77.195584
+  },
+  "Cub Run Elementary School": {
+    "town": "Centreville",
+    "lat": 38.865164,
+    "lng": -77.458385
+  },
+  "Cub Run Rec Center": {
+    "town": "Chantilly",
+    "lat": 38.890149,
+    "lng": -77.468428
+  },
+  "Deer Park Elementary School": {
+    "town": "Centreville",
+    "lat": 38.855432,
+    "lng": -77.470995
+  },
+  "Dranesville Tavern": {
+    "town": "Herndon",
+    "lat": 39.008013,
+    "lng": -77.360254
+  },
+  "Eagle View Elementary School": {
+    "town": "Fairfax",
+    "lat": 38.851327,
+    "lng": -77.362755
+  },
+  "Ellanor C. Lawrence Park": {
+    "town": "Chantilly",
+    "lat": 38.858536,
+    "lng": -77.424687
+  },
+  "Fairfax Fencers": {
+    "town": "Chantilly",
+    "lat": 38.881733,
+    "lng": -77.429047
+  },
+  "Fairhill Elementary School": {
+    "town": "Fairfax",
+    "lat": 38.869671,
+    "lng": -77.247877
+  },
+  "Falls Church High School": {
+    "town": "Falls Church",
+    "lat": 38.861472,
+    "lng": -77.207416
+  },
+  "Flint Hill Elementary School": {
+    "town": "Oakton",
+    "lat": 38.896555,
+    "lng": -77.285447
+  },
+  "Floris Elementary School": {
+    "town": "Herndon",
+    "lat": 38.935921,
+    "lng": -77.41495
+  },
+  "Fort Hunt Elementary School": {
+    "town": "Alexandria",
+    "lat": 38.718766,
+    "lng": -77.066385
+  },
+  "Fox Mill Elementary School": {
+    "town": "Herndon",
+    "lat": 38.927703,
+    "lng": -77.382228
+  },
+  "Franconia Rec Center": {
+    "town": "Alexandria",
+    "lat": 38.774003,
+    "lng": -77.106854
+  },
+  "Franklin Sherman Elementary School": {
+    "town": "McLean",
+    "lat": 38.934872,
+    "lng": -77.174506
+  },
+  "Frost Middle School": {
+    "town": "Fairfax",
+    "lat": 38.836436,
+    "lng": -77.273331
+  },
+  "Frying Pan Park": {
+    "town": "Herndon",
+    "lat": 38.937541,
+    "lng": -77.407358
+  },
+  "Garfield Elementary School": {
+    "town": "Springfield",
+    "lat": 38.777606,
+    "lng": -77.190584
+  },
+  "George Washington Rec Center": {
+    "town": "Fort Belvoir",
+    "lat": 38.728371,
+    "lng": -77.094009
+  },
+  "GMU Field House": {
+    "town": "Fairfax",
+    "lat": 38.82655,
+    "lng": -77.309231
+  },
+  "GMUFieldHouse": {
+    "town": "Fairfax",
+    "lat": 38.82655,
+    "lng": -77.309231
+  },
+  "Great Falls Grange": {
+    "town": "Great Falls",
+    "lat": 38.997682,
+    "lng": -77.285622
+  },
+  "Great Falls Nike": {
+    "town": "Great Falls",
+    "lat": 38.991934,
+    "lng": -77.326708
+  },
+  "Green Spring Gardens Park": {
+    "town": "Annandale",
+    "lat": 38.82456,
+    "lng": -77.157423
+  },
+  "Greenbriar East Elementary School": {
+    "town": "Chantilly",
+    "lat": 38.871951,
+    "lng": -77.394436
+  },
+  "Greenbriar West Elementary School": {
+    "town": "Fairfax",
+    "lat": 38.876469,
+    "lng": -77.405443
+  },
+  "Herndon Middle School": {
+    "town": "Herndon",
+    "lat": 38.966285,
+    "lng": -77.393773
+  },
+  "Hidden Oaks Nature Center": {
+    "town": "Annandale",
+    "lat": 38.839439,
+    "lng": -77.212093
+  },
+  "Hidden Pond Nature Center": {
+    "town": "Springfield",
+    "lat": 38.772286,
+    "lng": -77.23874
+  },
+  "Historic Huntley": {
+    "town": "Alexandria",
+    "lat": 38.765927,
+    "lng": -77.095006
+  },
+  "Hunt Valley Elementary School": {
+    "town": "Springfield",
+    "lat": 38.762194,
+    "lng": -77.242739
+  },
+  "Hunter House": {
+    "town": "Vienna",
+    "lat": 38.886486,
+    "lng": -77.274096
+  },
+  "Huntley Meadows Park": {
+    "town": "Alexandria",
+    "lat": 38.752583,
+    "lng": -77.107518
+  },
+  "Jackson Middle School": {
+    "town": "Falls Church",
+    "lat": 38.867936,
+    "lng": -77.230183
+  },
+  "Keene Mill Elementary School": {
+    "town": "Springfield",
+    "lat": 38.781293,
+    "lng": -77.22161
+  },
+  "Kings Park Elementary School": {
+    "town": "Springfield",
+    "lat": 38.804777,
+    "lng": -77.241692
+  },
+  "Lake Accotink Park": {
+    "town": "Springfield",
+    "lat": 38.801697,
+    "lng": -77.228921
+  },
+  "Lake Fairfax Park": {
+    "town": "Reston",
+    "lat": 38.961164,
+    "lng": -77.318652
+  },
+  "Laurel Hill Elementary School": {
+    "town": "Lorton",
+    "lat": 38.716816,
+    "lng": -77.23324
+  },
+  "Lewinsville House": {
+    "town": "McLean",
+    "lat": 38.927162,
+    "lng": -77.190324
+  },
+  "Louise Archer Elementary School": {
+    "town": "Vienna",
+    "lat": 38.898861,
+    "lng": -77.278494
+  },
+  "Lucia Farms Equestrian": {
+    "town": "Herndon",
+    "lat": 38.967803,
+    "lng": -77.384754
+  },
+  "Marshall Road Elementary School": {
+    "town": "Vienna",
+    "lat": 38.882135,
+    "lng": -77.265773
+  },
+  "Mason District Park": {
+    "town": "Annandale",
+    "lat": 38.83258,
+    "lng": -77.174294
+  },
+  "Mount Vernon Rec Center": {
+    "town": "Alexandria",
+    "lat": 38.77427,
+    "lng": -77.063365
+  },
+  "Navy Elementary School": {
+    "town": "Fairfax",
+    "lat": 38.889197,
+    "lng": -77.379149
+  },
+  "Newington Forest Elementary School": {
+    "town": "Springfield",
+    "lat": 38.738816,
+    "lng": -77.239597
+  },
+  "Northern Va Therapeutic Riding Program": {
+    "town": "Clifton",
+    "lat": 38.806493,
+    "lng": -77.39805
+  },
+  "Nottoway Park": {
+    "town": "Vienna",
+    "lat": 38.88454,
+    "lng": -77.275179
+  },
+  "NOVA Fencing Club": {
+    "town": "Falls Church",
+    "lat": 38.84944,
+    "lng": -77.123379
+  },
+  "Oakmont Rec Center": {
+    "town": "Oakton",
+    "lat": 38.875016,
+    "lng": -77.312743
+  },
+  "Oakton Elementary School": {
+    "town": "Oakton",
+    "lat": 38.880015,
+    "lng": -77.305013
+  },
+  "Oakton High School": {
+    "town": "Vienna",
+    "lat": 38.880189,
+    "lng": -77.282131
+  },
+  "Orange Hunt Elementary School": {
+    "town": "Springfield",
+    "lat": 38.7655,
+    "lng": -77.255985
+  },
+  "Patriot Park North": {
+    "town": "Fairfax",
+    "lat": 38.830339,
+    "lng": -77.378051
+  },
+  "Pine Spring Elementary School": {
+    "town": "Falls Church",
+    "lat": 38.870447,
+    "lng": -77.209028
+  },
+  "Pinecrest Golf Course": {
+    "town": "Annandale",
+    "lat": 38.826467,
+    "lng": -77.161404
+  },
+  "Poe Middle School": {
+    "town": "Annandale",
+    "lat": 38.820062,
+    "lng": -77.18703
+  },
+  "Providence Rec Center": {
+    "town": "Falls Church",
+    "lat": 38.861373,
+    "lng": -77.210804
+  },
+  "Ravensworth Elementary School": {
+    "town": "Springfield",
+    "lat": 38.803444,
+    "lng": -77.222785
+  },
+  "Reston Conservatory": {
+    "town": "Reston",
+    "lat": 38.936481,
+    "lng": -77.361365
+  },
+  "Riverbend Park": {
+    "town": "Great Falls",
+    "lat": 39.019261,
+    "lng": -77.250371
+  },
+  "Riverside Elementary School": {
+    "town": "Alexandria",
+    "lat": 38.729884,
+    "lng": -77.095674
+  },
+  "Royal Lake Park": {
+    "town": "Fairfax",
+    "lat": 38.802731,
+    "lng": -77.288804
+  },
+  "Sangster Elementary School": {
+    "town": "Springfield",
+    "lat": 38.755642,
+    "lng": -77.27198
+  },
+  "Saratoga Elementary School": {
+    "town": "Springfield",
+    "lat": 38.735536,
+    "lng": -77.213096
+  },
+  "Silverbrook Elementary School": {
+    "town": "Fairfax Station",
+    "lat": 38.729065,
+    "lng": -77.269335
+  },
+  "South County Middle School": {
+    "town": "Lorton",
+    "lat": 38.72114,
+    "lng": -77.245055
+  },
+  "South Run Rec Center": {
+    "town": "Springfield",
+    "lat": 38.776956,
+    "lng": -77.186105
+  },
+  "Spring Hill Elementary School": {
+    "town": "McLean",
+    "lat": 38.939409,
+    "lng": -77.228548
+  },
+  "Spring Hill Rec Center": {
+    "town": "McLean",
+    "lat": 38.929259,
+    "lng": -77.241933
+  },
+  "Stenwood Elementary School": {
+    "town": "Vienna",
+    "lat": 38.884364,
+    "lng": -77.229502
+  },
+  "Stone Mansion": {
+    "town": "Alexandria",
+    "lat": 38.770105,
+    "lng": -77.099332
+  },
+  "Stone Middle School": {
+    "town": "Centreville",
+    "lat": 38.857009,
+    "lng": -77.455385
+  },
+  "Stratford Landing Elementary School": {
+    "town": "Alexandria",
+    "lat": 38.728294,
+    "lng": -77.069123
+  },
+  "Sully Community Center": {
+    "town": "Herndon",
+    "lat": 38.918402,
+    "lng": -77.422921
+  },
+  "Sully Highlands": {
+    "town": "Herndon",
+    "lat": 38.919632,
+    "lng": -77.425546
+  },
+  "Sully Historic Site": {
+    "town": "Centreville",
+    "lat": 38.908094,
+    "lng": -77.429375
+  },
+  "Terra Centre Elementary School": {
+    "town": "Burke",
+    "lat": 38.78558,
+    "lng": -77.297841
+  },
+  "Turner Farm Park": {
+    "town": "Great Falls",
+    "lat": 38.996326,
+    "lng": -77.312158
+  },
+  "Twin Lakes Golf Course": {
+    "town": "Clifton",
+    "lat": 38.821871,
+    "lng": -77.405404
+  },
+  "VA Academy of Fencing": {
+    "town": "Springfield",
+    "lat": 38.740764,
+    "lng": -77.166142
+  },
+  "Virginia Run Elementary School": {
+    "town": "Centreville",
+    "lat": 38.853164,
+    "lng": -77.48503
+  },
+  "Wakefield Chapel": {
+    "town": "Annandale",
+    "lat": 38.828899,
+    "lng": -77.230426
+  },
+  "Waples Mill Elementary School": {
+    "town": "Oakton",
+    "lat": 38.875702,
+    "lng": -77.344719
+  },
+  "Waynewood Elementary School": {
+    "town": "Alexandria",
+    "lat": 38.724537,
+    "lng": -77.056058
+  },
+  "West Springfield Elementary School": {
+    "town": "Springfield",
+    "lat": 38.769221,
+    "lng": -77.219918
+  },
+  "Westbriar Elementary School": {
+    "town": "Vienna",
+    "lat": 38.920826,
+    "lng": -77.24472
+  },
+  "Westfields High School": {
+    "town": "Chantilly",
+    "lat": 38.885994,
+    "lng": -77.465863
+  },
+  "Whitman Middle School": {
+    "town": "Alexandria",
+    "lat": 38.741455,
+    "lng": -77.07418
+  },
+  "Woodburn Elementary School": {
+    "town": "Falls Church",
+    "lat": 38.852195,
+    "lng": -77.212815
+  },
+  "Woodley Hills Elementary": {
+    "town": "Mt. Vernon",
+    "lat": 38.720401,
+    "lng": -77.097205
+  }
+}

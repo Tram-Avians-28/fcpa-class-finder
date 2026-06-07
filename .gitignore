@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+.venv
+*.local
+.env
+.env.*
+!.env.example
+# never commit API keys / secrets
+*.key
+ors.key
+.DS_Store
+*.log
+.vite
+coverage

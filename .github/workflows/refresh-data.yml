@@ -1,0 +1,33 @@
+name: Refresh camp data
+
+# Pulls the latest FCPA camp spreadsheet once a month (server-side — no CORS),
+# commits it if it changed, which triggers the deploy workflow. Low impact:
+# ~12 requests/year to fairfaxcounty.gov.
+on:
+  schedule:
+    - cron: "0 9 1 * *" # 09:00 UTC on the 1st of each month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download latest spreadsheet
+        run: |
+          curl -fSL --retry 3 -o public/fcpa-camp-spreadsheet.xlsx \
+            "https://www.fairfaxcounty.gov/parks/sites/parks/files/Assets/documents/camps/fcpa-camp-spreadsheet.xlsx"
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- public/fcpa-camp-spreadsheet.xlsx; then
+            echo "No changes to the camp spreadsheet."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add public/fcpa-camp-spreadsheet.xlsx
+            git commit -m "chore: refresh FCPA camp spreadsheet"
+            git push
+          fi
