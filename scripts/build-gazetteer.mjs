@@ -78,6 +78,8 @@ const MANUAL_COORDS = {
   "Spring Hill Rec Center": { town: "McLean", lat: 38.915244, lng: -77.235422 },
   "Spring Hill Elementary School": { town: "McLean", lat: 38.93749, lng: -77.239272 },
   "VA Academy of Fencing": { town: "Springfield", lat: 38.730438, lng: -77.185689 },
+  // Google mis-placed this 3.4km into Great Falls village; real address 1089 Utterback Store Rd.
+  "Great Falls Nike": { town: "Great Falls", lat: 38.995213, lng: -77.329267 },
 };
 
 function readVenues(file) {

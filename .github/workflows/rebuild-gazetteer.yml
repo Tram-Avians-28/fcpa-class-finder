@@ -1,0 +1,40 @@
+name: Rebuild gazetteer (Google)
+
+# Manually re-geocode venues with Google and commit any coordinate changes.
+# The key lives only in the GOOGLE_MAPS_API_KEY repo secret (server-side, masked
+# in logs) — it is never in the repo or shipped to the browser. Verified
+# coordinates in MANUAL_COORDS always win, so a bad geocode can't regress them.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Re-geocode venues with Google
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: npm run gazetteer
+      - name: Commit coordinate changes (if any)
+        run: |
+          if git diff --quiet -- src/data/gazetteer.json; then
+            echo "No coordinate changes."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/data/gazetteer.json
+            git commit -m "chore: refresh venue coordinates (Google geocoding)"
+            git push
+          fi
