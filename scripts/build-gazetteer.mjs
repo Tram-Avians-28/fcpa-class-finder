@@ -1,16 +1,18 @@
 /**
  * Build/extend src/data/gazetteer.json: venue name -> { town, lat, lng }.
  *
- * One-time geocoding of the venues listed in the FCPA spreadsheet's
- * "Lookup Tables" sheet. Incremental: venues already present in the output
- * are skipped, so re-running only fills gaps.
+ * Geocodes the venues from the spreadsheet's "Lookup Tables" sheet.
  *
  * Geocoders, in order per venue:
- *   1. OpenStreetMap Nominatim (no key; >=1s between requests per their policy)
- *   2. OpenRouteService Pelias  (fallback; only if ORS_API_KEY is set)
+ *   1. Google Geocoding    (most accurate; only if GOOGLE_MAPS_API_KEY is set —
+ *      and when set, ALL venues are re-geocoded for consistency)
+ *   2. OpenStreetMap Nominatim (no key; >=1s between requests per their policy)
+ *   3. OpenRouteService Pelias (fallback; only if ORS_API_KEY is set)
+ * MANUAL_COORDS (verified street addresses) always win. Without a key it runs
+ * incrementally, filling only missing venues.
  *
- *   npm run gazetteer                         # ./fcpa-camp-spreadsheet.xlsx
- *   ORS_API_KEY=xxx npm run gazetteer         # with ORS fallback
+ *   npm run gazetteer                              # Nominatim, fills gaps only
+ *   GOOGLE_MAPS_API_KEY=xxx npm run gazetteer      # Google, re-geocode everything
  *   npm run gazetteer -- path/to/file.xlsx
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -22,6 +24,7 @@ const OUT = "src/data/gazetteer.json";
 const UA = "ffx-camps/0.1 one-time venue geocoder (https://github.com/local/ffx-camps)";
 const DELAY_MS = 1100;
 const ORS_KEY = process.env.ORS_API_KEY || "";
+const GOOGLE = process.env.GOOGLE_MAPS_API_KEY || "";
 
 // Normalize odd source spellings to a canonical name.
 const ALIASES = { gmufieldhouse: "GMU Field House" };
@@ -137,6 +140,23 @@ async function geocodeORS(query) {
   return validate(lat, lng);
 }
 
+async function geocodeGoogle(query) {
+  if (!GOOGLE) return null;
+  const params = new URLSearchParams({
+    key: GOOGLE,
+    address: query,
+    components: "country:US|administrative_area:VA",
+  });
+  const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`);
+  if (!res.ok) return null;
+  const j = await res.json();
+  if (j.status === "REQUEST_DENIED" || j.status === "OVER_QUERY_LIMIT") {
+    throw new Error(`Google Geocoding ${j.status}: ${j.error_message || "check the key/billing"}`);
+  }
+  const loc = j.results?.[0]?.geometry?.location;
+  return loc ? validate(loc.lat, loc.lng) : null;
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let gaz = existsSync(OUT) ? JSON.parse(readFileSync(OUT, "utf8")) : {};
@@ -147,29 +167,34 @@ gaz = Object.fromEntries(Object.entries(gaz).filter(([, v]) => inRegion(v.lat, v
 const pruned = before - Object.keys(gaz).length;
 const have = new Set(Object.keys(gaz).map(key));
 const venues = readVenues(SRC);
-// Skip venues we hard-code below; they don't need geocoding.
-const todo = venues.filter((v) => !have.has(key(v.name)) && !(v.name in MANUAL_COORDS));
+// With Google available, re-geocode everything for consistent accuracy; otherwise
+// only fill gaps. Hard-coded (verified) venues are always skipped here.
+const refreshAll = Boolean(GOOGLE);
+const todo = venues.filter((v) => !(v.name in MANUAL_COORDS) && (refreshAll || !have.has(key(v.name))));
 console.error(
-  `${venues.length} venues; ${Object.keys(gaz).length} valid existing (pruned ${pruned}); ${todo.length} to do.`,
+  `${venues.length} venues; ${Object.keys(gaz).length} valid existing (pruned ${pruned}); ` +
+    `${todo.length} to ${refreshAll ? "re-geocode (Google)" : "fill (Nominatim)"}.`,
 );
 
 const missing = [];
 for (const { name, town } of todo) {
-  const queries = [
-    QUERY_OVERRIDES[key(name)],
-    `${name}, ${town}, VA, USA`,
-    `${name}, Fairfax County, VA, USA`,
-    `${name}, Virginia, USA`,
-  ].filter(Boolean);
-
+  const override = QUERY_OVERRIDES[key(name)];
   let hit = null;
-  for (const q of queries) {
-    hit = await geocodeNominatim(q);
-    await sleep(DELAY_MS);
-    if (hit) break;
+
+  if (GOOGLE) {
+    hit = await geocodeGoogle(override || `${name}, ${town}, VA, USA`);
+    await sleep(120); // Google allows ~50 QPS; stay gentle
+  }
+  if (!hit) {
+    const queries = [override, `${name}, ${town}, VA, USA`, `${name}, Fairfax County, VA, USA`, `${name}, Virginia, USA`].filter(Boolean);
+    for (const q of queries) {
+      hit = await geocodeNominatim(q);
+      await sleep(DELAY_MS);
+      if (hit) break;
+    }
   }
   if (!hit && ORS_KEY) {
-    hit = await geocodeORS(QUERY_OVERRIDES[key(name)] || `${name}, ${town}, VA`);
+    hit = await geocodeORS(override || `${name}, ${town}, VA`);
   }
 
   if (hit) {

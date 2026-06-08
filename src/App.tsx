@@ -359,6 +359,7 @@ export default function App() {
                 shortlist={shortlistSet}
                 onToggleShortlist={toggleShortlist}
                 showDrive={home != null}
+                filterable
               />
             )}
             {tab === "shortlist" && (

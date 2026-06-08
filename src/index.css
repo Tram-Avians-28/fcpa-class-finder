@@ -208,7 +208,21 @@ button {
 .table-wrap { overflow-x: auto; }
 table.camps { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--panel); }
 table.camps th, table.camps td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-table.camps th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 600; }
+table.camps th { position: sticky; top: 0; z-index: 1; background: var(--panel); color: var(--muted); font-weight: 600; }
+
+/* Excel-style in-header column filters + sorting */
+.list-toolbar { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.th-sort {
+  background: none; border: none; padding: 0; font: inherit; font-weight: 600;
+  color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.th-sort:hover { color: var(--ink); }
+.th-filter { margin-top: 4px; font-weight: 400; }
+.col-filter {
+  width: 100%; min-width: 64px; box-sizing: border-box;
+  padding: 3px 5px; border: 1px solid var(--line); border-radius: 5px;
+  font: inherit; font-size: 12px;
+}
 table.camps code { background: var(--chip); padding: 1px 5px; border-radius: 4px; }
 
 .cal-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
