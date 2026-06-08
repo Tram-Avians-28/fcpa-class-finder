@@ -52,18 +52,30 @@ describe("filterCamps", () => {
     expect(filterCamps(camps, { maxFee: 100 }).map((c) => c.catalogId)).toEqual(["A"]);
   });
 
-  it("filters by child age inclusively", () => {
+  it("filters by a single age inclusively", () => {
     const camps = [
       camp({ catalogId: "young", ageMin: 3, ageMax: 5 }),
       camp({ catalogId: "fits", ageMin: 6, ageMax: 13 }),
       camp({ catalogId: "edge", ageMin: 7, ageMax: 7 }),
     ];
-    expect(filterCamps(camps, { childAge: 7 }).map((c) => c.catalogId)).toEqual(["fits", "edge"]);
+    expect(filterCamps(camps, { ageText: "7" }).map((c) => c.catalogId)).toEqual(["fits", "edge"]);
+  });
+
+  it("filters by multiple ages / ranges (matches ANY)", () => {
+    const camps = [
+      camp({ catalogId: "a", ageMin: 3, ageMax: 5 }),
+      camp({ catalogId: "b", ageMin: 6, ageMax: 8 }),
+      camp({ catalogId: "c", ageMin: 12, ageMax: 14 }),
+    ];
+    // a 4-year-old OR a 13-year-old -> camps fitting either
+    expect(filterCamps(camps, { ageText: "4, 13" }).map((c) => c.catalogId).sort()).toEqual(["a", "c"]);
+    // range 6-7 -> only b
+    expect(filterCamps(camps, { ageText: "6-7" }).map((c) => c.catalogId)).toEqual(["b"]);
   });
 
   it("does not exclude camps with missing age bounds", () => {
     const camps = [camp({ catalogId: "noages", ageMin: null, ageMax: null })];
-    expect(filterCamps(camps, { childAge: 99 })).toHaveLength(1);
+    expect(filterCamps(camps, { ageText: "99" })).toHaveLength(1);
   });
 
   it("filters by category and week label sets", () => {

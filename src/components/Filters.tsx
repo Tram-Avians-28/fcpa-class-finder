@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { parseAges } from "../lib/ages";
 import { type Phase, PHASE_LABELS, phaseForVenue } from "../lib/phase";
 import type { FilterCriteria } from "../lib/types";
 
@@ -64,17 +65,18 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
         />
       </div>
       <div className="field">
-        <label>Child age (years)</label>
+        <label>Child age(s)</label>
         <input
-          type="number"
-          min={0}
-          max={18}
-          placeholder="any"
-          value={criteria.childAge ?? ""}
-          onChange={(e) =>
-            onChange({ childAge: e.target.value === "" ? undefined : Number(e.target.value) })
-          }
+          type="text"
+          placeholder="any — e.g. 7, 9 or 6-10"
+          value={criteria.ageText ?? ""}
+          onChange={(e) => onChange({ ageText: e.target.value || undefined })}
         />
+        {criteria.ageText ? (
+          <div className="hint">
+            matching ages: {parseAges(criteria.ageText).join(", ") || "—"}
+          </div>
+        ) : null}
       </div>
 
       <h2>Category</h2>

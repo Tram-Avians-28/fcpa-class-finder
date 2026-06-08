@@ -14,6 +14,7 @@ import { CampDetail } from "./components/CampDetail";
 import { MapPanel } from "./components/MapPanel";
 import { ShortlistView } from "./components/ShortlistView";
 import { clearDataset, daysSince, isStale, loadDataset, saveDataset } from "./lib/datasetCache";
+import { readSharedFromHash, shareUrl } from "./lib/shareState";
 import { safeGet, safeSet } from "./lib/storage";
 import type { Camp, FilterCriteria, Gazetteer, GeocodeResult } from "./lib/types";
 
@@ -30,22 +31,29 @@ function todayISO(): string {
 /** Default filters: show from today through the last day in the dataset. */
 function defaultCriteria(camps: Camp[]): FilterCriteria {
   const ends = camps.map((c) => c.endDate).filter(Boolean);
-  if (ends.length === 0) return { includeVirtual: true };
+  if (ends.length === 0) return { includeVirtual: false };
   const maxEnd = ends.reduce((m, d) => (d > m ? d : m));
   const minStart = camps.map((c) => c.startDate).filter(Boolean).reduce((m, d) => (d < m ? d : m), maxEnd);
   const today = todayISO();
-  return { includeVirtual: true, startDate: today <= maxEnd ? today : minStart, endDate: maxEnd };
+  return { includeVirtual: false, startDate: today <= maxEnd ? today : minStart, endDate: maxEnd };
 }
 
 export default function App() {
+  // A shared view (#share= link) seeds the initial filters / tab / selection / shortlist.
+  const [shared] = useState(() => readSharedFromHash());
+  const consumedShare = useRef(false);
+
   const [camps, setCamps] = useState<Camp[]>([]);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
-  const [criteria, setCriteria] = useState<FilterCriteria>({ includeVirtual: true });
-  const [tab, setTab] = useState<Tab>("calendar");
-  const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false); // mobile drawer
+  const [criteria, setCriteria] = useState<FilterCriteria>(() => shared?.c ?? { includeVirtual: false });
+  const [tab, setTab] = useState<Tab>(() =>
+    shared?.t === "list" || shared?.t === "shortlist" ? shared.t : "calendar",
+  );
+  const [selectedVenue, setSelectedVenue] = useState<string | null>(() => shared?.sv ?? null);
+  const [filtersOpen, setFiltersOpen] = useState(true); // mobile drawer open by default (discoverability)
   const [detailCamp, setDetailCamp] = useState<Camp | null>(null);
+  const [copied, setCopied] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Dataset provenance: when the cached upload was saved, whether we're on the
@@ -66,6 +74,7 @@ export default function App() {
 
   // Shortlist of catalog IDs, persisted across reloads.
   const [shortlist, setShortlist] = useState<string[]>(() => {
+    if (shared?.sl) return shared.sl;
     try {
       return JSON.parse(safeGet("shortlist") || "[]");
     } catch {
@@ -97,10 +106,31 @@ export default function App() {
     if (parsed.length === 0) throw new Error("No camps found in this file.");
     setCamps(enrichWithGazetteer(parsed, gazetteer));
     setFileName(name);
-    setCriteria(defaultCriteria(parsed));
-    setSelectedVenue(null);
+    // Honor a shared view on first load; otherwise apply default filters.
+    if (shared && !consumedShare.current) {
+      consumedShare.current = true;
+    } else {
+      setCriteria(defaultCriteria(parsed));
+      setSelectedVenue(null);
+    }
     setHome(null);
     setError("");
+  }
+
+  async function shareView() {
+    const url = shareUrl({ c: criteria, t: tab, sv: selectedVenue, sl: shortlist });
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      /* clipboard may be blocked; still update the address bar below */
+    }
+    try {
+      history.replaceState(null, "", url);
+    } catch {
+      /* ignore */
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   // On first load: restore the cached upload, else fetch the bundled default
@@ -179,7 +209,12 @@ export default function App() {
   // Open the calendar on the default start (today, clamped into the season).
   const initialDate = useMemo(() => defaultCriteria(camps).startDate || "2026-06-22", [camps]);
 
-  const filtered = useMemo(() => filterCamps(camps, criteria), [camps, criteria]);
+  // The max-drive-time filter only applies once drive times exist (home set);
+  // otherwise a shared link with that filter would hide everything.
+  const filtered = useMemo(
+    () => filterCamps(camps, home ? criteria : { ...criteria, maxDriveMinutes: undefined }),
+    [camps, criteria, home],
+  );
   const venueCamps = selectedVenue ? filtered.filter((c) => c.venue === selectedVenue) : filtered;
   const shortlistSet = useMemo(() => new Set(shortlist), [shortlist]);
   const shortlistCamps = useMemo(
@@ -230,6 +265,11 @@ export default function App() {
             if (f) handleFile(f);
           }}
         />
+        {camps.length > 0 ? (
+          <button className="upload-btn" onClick={shareView} title="Copy a link that reproduces this view">
+            {copied ? "Link copied!" : "Share view"}
+          </button>
+        ) : null}
         <button className="upload-btn" onClick={() => fileRef.current?.click()}>
           {camps.length > 0 ? "Upload a different spreadsheet" : "Upload FCPA camp spreadsheet"}
         </button>

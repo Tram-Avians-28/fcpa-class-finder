@@ -1,3 +1,4 @@
+import { parseAges } from "./ages";
 import { phaseForVenue } from "./phase";
 import type { Camp, FilterCriteria } from "./types";
 
@@ -18,6 +19,7 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const weekLabels = f.weekLabels && f.weekLabels.length ? new Set(f.weekLabels) : null;
   const venues = f.venues && f.venues.length ? new Set(f.venues) : null;
   const phases = f.phases && f.phases.length ? new Set(f.phases) : null;
+  const ages = f.ageText ? parseAges(f.ageText) : [];
 
   return camps.filter((c) => {
     // Date overlap
@@ -28,10 +30,12 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
     // Cost
     if (f.maxFee != null && c.fee > f.maxFee) return false;
 
-    // Age (inclusive). If the camp has no age bounds, don't exclude it.
-    if (f.childAge != null) {
-      if (c.ageMin != null && f.childAge < c.ageMin) return false;
-      if (c.ageMax != null && f.childAge > c.ageMax) return false;
+    // Ages: keep the camp if it fits ANY requested age (multiple kids / a range).
+    if (ages.length) {
+      const fits = ages.some(
+        (a) => (c.ageMin == null || a >= c.ageMin) && (c.ageMax == null || a <= c.ageMax),
+      );
+      if (!fits) return false;
     }
 
     // Category / week label / venue

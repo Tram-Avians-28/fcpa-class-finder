@@ -79,6 +79,14 @@ button {
   .main { padding: 12px; }
   .map-wrap { height: 300px; }
   .topbar .status { display: none; } /* hide the "N of M camps" line on mobile */
+  /* Tighter calendar on phones: smaller title (date range), buttons, headers */
+  .cal-wrap { padding: 6px; }
+  .fc { font-size: 12px; }
+  .fc .fc-toolbar-title { font-size: 1.05em; }
+  .fc .fc-toolbar.fc-header-toolbar { flex-wrap: wrap; gap: 4px; margin-bottom: 0.5em; }
+  .fc .fc-button { padding: 2px 6px; font-size: 11px; }
+  .fc .fc-col-header-cell-cushion { padding: 2px; }
+  .fc .fc-daygrid-day-number { padding: 2px 4px; }
 }
 
 .sidebar {
