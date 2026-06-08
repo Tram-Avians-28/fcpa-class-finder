@@ -72,6 +72,9 @@ const MANUAL_COORDS = {
   "Oakmont Rec Center": { town: "Oakton", lat: 38.875016, lng: -77.312743 },
   "George Washington Rec Center": { town: "Fort Belvoir", lat: 38.728371, lng: -77.094009 },
   "South Run Rec Center": { town: "Springfield", lat: 38.750929, lng: -77.275444 },
+  "Spring Hill Rec Center": { town: "McLean", lat: 38.915244, lng: -77.235422 },
+  "Spring Hill Elementary School": { town: "McLean", lat: 38.93749, lng: -77.239272 },
+  "VA Academy of Fencing": { town: "Springfield", lat: 38.730438, lng: -77.185689 },
 };
 
 function readVenues(file) {

@@ -476,13 +476,13 @@
   },
   "Spring Hill Elementary School": {
     "town": "McLean",
-    "lat": 38.939409,
-    "lng": -77.228548
+    "lat": 38.93749,
+    "lng": -77.239272
   },
   "Spring Hill Rec Center": {
     "town": "McLean",
-    "lat": 38.929259,
-    "lng": -77.241933
+    "lat": 38.915244,
+    "lng": -77.235422
   },
   "Stenwood Elementary School": {
     "town": "Vienna",
@@ -536,8 +536,8 @@
   },
   "VA Academy of Fencing": {
     "town": "Springfield",
-    "lat": 38.740764,
-    "lng": -77.166142
+    "lat": 38.730438,
+    "lng": -77.185689
   },
   "Virginia Run Elementary School": {
     "town": "Centreville",
