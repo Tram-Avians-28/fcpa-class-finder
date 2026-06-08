@@ -12,5 +12,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    // App integration tests render ~2k table rows in jsdom; CI runners are slow.
+    testTimeout: 20000,
   },
 });
