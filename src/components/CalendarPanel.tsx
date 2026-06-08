@@ -12,7 +12,7 @@ interface Props {
   camps: Camp[];
   initialDate: string;
   selectedVenue: string | null;
-  onSelectVenue: (venue: string | null) => void;
+  onSelectCamp: (camp: Camp) => void;
   venueStyles: Map<string, VenueStyle>;
 }
 
@@ -22,7 +22,7 @@ interface Range {
   type: string;
 }
 
-export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectVenue, venueStyles }: Props) {
+export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectCamp, venueStyles }: Props) {
   const physical = useMemo(() => camps.filter((c) => !c.isVirtual), [camps]);
   const { slotMinTime, slotMaxTime } = useMemo(() => timeWindow(physical), [physical]);
   const [range, setRange] = useState<Range | null>(null);
@@ -78,8 +78,7 @@ export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectVenue
           })
         }
         eventClick={(arg: EventClickArg) => {
-          const c = arg.event.extendedProps.camp as Camp;
-          onSelectVenue(c.venue === selectedVenue ? null : c.venue);
+          onSelectCamp(arg.event.extendedProps.camp as Camp);
         }}
       />
     </div>

@@ -71,6 +71,7 @@ const MANUAL_COORDS = {
   GMUFieldHouse: { town: "Fairfax", lat: 38.82655, lng: -77.309231 },
   "Oakmont Rec Center": { town: "Oakton", lat: 38.875016, lng: -77.312743 },
   "George Washington Rec Center": { town: "Fort Belvoir", lat: 38.728371, lng: -77.094009 },
+  "South Run Rec Center": { town: "Springfield", lat: 38.750929, lng: -77.275444 },
 };
 
 function readVenues(file) {

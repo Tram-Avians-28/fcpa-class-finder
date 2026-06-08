@@ -53,9 +53,7 @@ export function DrivePanel({
               forget
             </button>
           </div>
-        ) : (
-          <div className="hint">Stored only in your browser, never in the app or sent anywhere except OpenRouteService.</div>
-        )}
+        ) : null}
       </div>
       <div className="field">
         <label>Home address</label>

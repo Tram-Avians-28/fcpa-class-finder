@@ -10,6 +10,7 @@ import { driveMatrixMinutes, geocodeAddress } from "./lib/ors";
 import { enrichWithGazetteer, parseWorkbook } from "./lib/parse";
 import { toggleId } from "./lib/shortlist";
 import { buildVenueStyles } from "./lib/venueStyle";
+import { CampDetail } from "./components/CampDetail";
 import { MapPanel } from "./components/MapPanel";
 import { ShortlistView } from "./components/ShortlistView";
 import { clearDataset, daysSince, isStale, loadDataset, saveDataset } from "./lib/datasetCache";
@@ -44,6 +45,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("calendar");
   const [selectedVenue, setSelectedVenue] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false); // mobile drawer
+  const [detailCamp, setDetailCamp] = useState<Camp | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Dataset provenance: when the cached upload was saved, whether we're on the
@@ -193,7 +195,16 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>FFX Camps</h1>
+        <h1>
+          <a
+            href="https://fairfax.usedirect.com/FairfaxFCPAWeb/"
+            target="_blank"
+            rel="noreferrer"
+            title="Open Parktakes Online registration"
+          >
+            FCPA Camps
+          </a>
+        </h1>
         {camps.length > 0 ? (
           <button
             className="filters-toggle"
@@ -337,7 +348,7 @@ export default function App() {
                   camps={filtered}
                   initialDate={initialDate}
                   selectedVenue={selectedVenue}
-                  onSelectVenue={setSelectedVenue}
+                  onSelectCamp={setDetailCamp}
                   venueStyles={venueStyles}
                 />
               </>
@@ -357,6 +368,15 @@ export default function App() {
           </div>
         </>
       )}
+
+      {detailCamp ? (
+        <CampDetail
+          camp={detailCamp}
+          onClose={() => setDetailCamp(null)}
+          inShortlist={shortlistSet.has(detailCamp.catalogId)}
+          onToggleShortlist={toggleShortlist}
+        />
+      ) : null}
     </div>
   );
 }
