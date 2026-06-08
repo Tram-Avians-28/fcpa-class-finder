@@ -12,6 +12,8 @@ interface Props {
   maxDriveMinutes: number | undefined;
   onMaxDrive: (v: number | undefined) => void;
   onForgetKey: () => void;
+  /** When the app already supplies an ORS key (baked into the build), hide the key field. */
+  keyProvided: boolean;
 }
 
 export function DrivePanel({
@@ -26,35 +28,38 @@ export function DrivePanel({
   maxDriveMinutes,
   onMaxDrive,
   onForgetKey,
+  keyProvided,
 }: Props) {
   const canCompute = orsKey.trim() !== "" && address.trim() !== "" && !computing;
   const keySaved = orsKey.trim() !== "";
   return (
     <div className="drive-panel">
       <h2>Drive time</h2>
-      <div className="field">
-        <label>
-          OpenRouteService API key{" "}
-          <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noreferrer">
-            (free)
-          </a>
-        </label>
-        <input
-          type="password"
-          placeholder="paste your ORS key"
-          value={orsKey}
-          onChange={(e) => onOrsKey(e.target.value)}
-          autoComplete="off"
-        />
-        {keySaved ? (
-          <div className="key-saved">
-            ✓ Saved in this browser
-            <button className="clear-link" onClick={onForgetKey}>
-              forget
-            </button>
-          </div>
-        ) : null}
-      </div>
+      {!keyProvided ? (
+        <div className="field">
+          <label>
+            OpenRouteService API key{" "}
+            <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noreferrer">
+              (free)
+            </a>
+          </label>
+          <input
+            type="password"
+            placeholder="paste your ORS key"
+            value={orsKey}
+            onChange={(e) => onOrsKey(e.target.value)}
+            autoComplete="off"
+          />
+          {keySaved ? (
+            <div className="key-saved">
+              ✓ Saved in this browser
+              <button className="clear-link" onClick={onForgetKey}>
+                forget
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       <div className="field">
         <label>Home address</label>
         <input

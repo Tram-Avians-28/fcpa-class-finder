@@ -20,6 +20,8 @@ import type { Camp, FilterCriteria, Gazetteer, GeocodeResult } from "./lib/types
 
 const gazetteer = gazetteerData as Gazetteer;
 const DEFAULT_DATASET_URL = `${import.meta.env.BASE_URL}fcpa-camp-spreadsheet.xlsx`;
+// Baked in at build time from the ORS_KEY secret (CI) or .env.local (dev).
+const BUILT_IN_ORS_KEY = import.meta.env.VITE_ORS_KEY ?? "";
 type Tab = "calendar" | "list" | "shortlist";
 
 function todayISO(): string {
@@ -35,7 +37,12 @@ function defaultCriteria(camps: Camp[]): FilterCriteria {
   const maxEnd = ends.reduce((m, d) => (d > m ? d : m));
   const minStart = camps.map((c) => c.startDate).filter(Boolean).reduce((m, d) => (d < m ? d : m), maxEnd);
   const today = todayISO();
-  return { includeVirtual: false, startDate: today <= maxEnd ? today : minStart, endDate: maxEnd };
+  return {
+    includeVirtual: false,
+    startDate: today <= maxEnd ? today : minStart,
+    endDate: maxEnd,
+    maxDriveMinutes: 30,
+  };
 }
 
 export default function App() {
@@ -62,11 +69,9 @@ export default function App() {
   const [usingBundled, setUsingBundled] = useState(false);
   const [staleDismissed, setStaleDismissed] = useState(false);
 
-  // Drive-time state
-  // Saved key wins; otherwise fall back to a local-dev key from .env.local
-  // (VITE_ORS_KEY). That file is gitignored and not present in CI, so the
-  // deployed build never embeds a key.
-  const [orsKey, setOrsKey] = useState(() => safeGet("ors_key") || (import.meta.env.VITE_ORS_KEY ?? ""));
+  // Drive-time state. A saved key wins; otherwise use the app-provided key
+  // (BUILT_IN_ORS_KEY). When that exists, the key field is hidden entirely.
+  const [orsKey, setOrsKey] = useState(() => safeGet("ors_key") || BUILT_IN_ORS_KEY);
   const [address, setAddress] = useState(() => safeGet("home_address"));
   const [home, setHome] = useState<GeocodeResult | null>(null);
   const [computing, setComputing] = useState(false);
@@ -270,9 +275,6 @@ export default function App() {
             {copied ? "Link copied!" : "Share view"}
           </button>
         ) : null}
-        <button className="upload-btn" onClick={() => fileRef.current?.click()}>
-          {camps.length > 0 ? "Upload a different spreadsheet" : "Upload FCPA camp spreadsheet"}
-        </button>
       </header>
 
       {camps.length === 0 ? (
@@ -332,6 +334,7 @@ export default function App() {
               maxDriveMinutes={criteria.maxDriveMinutes}
               onMaxDrive={(v) => patch({ maxDriveMinutes: v })}
               onForgetKey={forgetKey}
+              keyProvided={BUILT_IN_ORS_KEY !== ""}
             />
             <Filters
               criteria={criteria}
