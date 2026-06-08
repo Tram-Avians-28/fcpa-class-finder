@@ -26,9 +26,18 @@ interface Props {
   showDrive?: boolean;
   /** Enable Excel-style per-column filters + sortable headers (List tab only). */
   filterable?: boolean;
+  /** When set, clicking a row opens the camp detail card. */
+  onSelectCamp?: (camp: Camp) => void;
 }
 
-export function CampTable({ camps, shortlist, onToggleShortlist, showDrive = false, filterable = false }: Props) {
+export function CampTable({
+  camps,
+  shortlist,
+  onToggleShortlist,
+  showDrive = false,
+  filterable = false,
+  onSelectCamp,
+}: Props) {
   const [lf, setLf] = useState<ListFilter>({});
   const [sort, setSort] = useState<{ key: SortKey | null; dir: SortDir }>({ key: null, dir: "asc" });
 
@@ -127,14 +136,21 @@ export function CampTable({ camps, shortlist, onToggleShortlist, showDrive = fal
             {rows.map((c, i) => {
               const picked = shortlist.has(c.catalogId);
               return (
-                <tr key={`${c.catalogId}-${i}`}>
+                <tr
+                  key={`${c.catalogId}-${i}`}
+                  className={onSelectCamp ? "row-click" : undefined}
+                  onClick={onSelectCamp ? () => onSelectCamp(c) : undefined}
+                >
                   <td className="no-print">
                     <button
                       className={`star ${picked ? "on" : ""}`}
                       title={picked ? "Remove from shortlist" : "Add to shortlist"}
                       aria-label={picked ? "Remove from shortlist" : "Add to shortlist"}
                       aria-pressed={picked}
-                      onClick={() => onToggleShortlist(c.catalogId)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleShortlist(c.catalogId);
+                      }}
                     >
                       {picked ? "★" : "☆"}
                     </button>

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Camp } from "../lib/types";
 import { CampTable } from "./CampTable";
 
@@ -45,6 +45,26 @@ describe("CampTable filtering", () => {
   it("renders no filter controls when not filterable", () => {
     render(<CampTable camps={camps} shortlist={new Set()} onToggleShortlist={noop} />);
     expect(screen.queryByPlaceholderText("filter")).toBeNull();
+  });
+
+  it("opens the camp detail when a row is clicked, but not when the star is clicked", () => {
+    const onSelect = vi.fn();
+    const onToggle = vi.fn();
+    render(
+      <CampTable
+        camps={camps}
+        shortlist={new Set()}
+        onToggleShortlist={onToggle}
+        onSelectCamp={onSelect}
+      />,
+    );
+    // Click the star -> toggles shortlist, does NOT open detail.
+    fireEvent.click(screen.getAllByRole("button", { name: /add to shortlist/i })[0]);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(onSelect).not.toHaveBeenCalled();
+    // Click a cell in the row -> opens detail.
+    fireEvent.click(screen.getByText("Soccer Stars"));
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ catalogId: "a" }));
   });
 
   it("sorts when a header is clicked", () => {

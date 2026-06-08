@@ -5,9 +5,10 @@ interface Props {
   camps: Camp[];
   home: GeocodeResult | null;
   onToggleShortlist: (id: string) => void;
+  onSelectCamp?: (camp: Camp) => void;
 }
 
-export function ShortlistView({ camps, home, onToggleShortlist }: Props) {
+export function ShortlistView({ camps, home, onToggleShortlist, onSelectCamp }: Props) {
   if (camps.length === 0) {
     return (
       <div className="empty">
@@ -41,6 +42,7 @@ export function ShortlistView({ camps, home, onToggleShortlist }: Props) {
         shortlist={new Set(camps.map((c) => c.catalogId))}
         onToggleShortlist={onToggleShortlist}
         showDrive={home != null}
+        onSelectCamp={onSelectCamp}
       />
     </div>
   );

@@ -403,10 +403,16 @@ export default function App() {
                 onToggleShortlist={toggleShortlist}
                 showDrive={home != null}
                 filterable
+                onSelectCamp={setDetailCamp}
               />
             )}
             {tab === "shortlist" && (
-              <ShortlistView camps={shortlistCamps} home={home} onToggleShortlist={toggleShortlist} />
+              <ShortlistView
+                camps={shortlistCamps}
+                home={home}
+                onToggleShortlist={toggleShortlist}
+                onSelectCamp={setDetailCamp}
+              />
             )}
             </div>
           </div>
