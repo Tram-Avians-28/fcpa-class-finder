@@ -322,6 +322,16 @@ table.camps tbody tr.row-click:hover { background: var(--chip); }
 .shortlist-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .shortlist-head h2 { margin: 0; }
 
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
 @media print {
   .topbar, .sidebar, .tabs, .selbar, .no-print { display: none !important; }
   .layout { display: block; }
