@@ -55,9 +55,10 @@ build time (see `vite.config.ts`). To cut a release, tag a commit and push the t
 
 ```bash
 git tag v0.2.0      # follow semver: vMAJOR.MINOR.PATCH
-git push --tags
+git push origin v0.2.0
 ```
 
+Pushing a `v*` tag triggers `deploy.yml`, so the release goes live automatically.
 On a tagged commit the footer reads `v0.2.0 (abc1234)`; commits after a tag show
 `v0.2.0-3-gabc1234` (3 commits past `v0.2.0`). With no tags it falls back to
 `v<package.json version>`. The deploy workflow checks out with `fetch-depth: 0`
