@@ -47,3 +47,18 @@ ORS key during local testing. `.env.local` is gitignored and never included in C
 - **Settings → Actions → General → Workflow permissions: Read and write** (so the data-refresh job can commit).
 
 The Vite `base` is relative, so it works at `https://<user>.github.io/<repo>/`.
+
+## Versioning
+
+The version shown in the on-screen footer comes from `git describe --tags` at
+build time (see `vite.config.ts`). To cut a release, tag a commit and push the tag:
+
+```bash
+git tag v0.2.0      # follow semver: vMAJOR.MINOR.PATCH
+git push --tags
+```
+
+On a tagged commit the footer reads `v0.2.0 (abc1234)`; commits after a tag show
+`v0.2.0-3-gabc1234` (3 commits past `v0.2.0`). With no tags it falls back to
+`v<package.json version>`. The deploy workflow checks out with `fetch-depth: 0`
+so tags are available to the build.
