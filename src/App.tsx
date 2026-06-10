@@ -438,11 +438,16 @@ export default function App() {
       ) : null}
 
       <footer className="app-footer no-print">
-        <span>
-          {APP_VERSION}
-          {SHOW_HASH ? ` (${GIT_HASH})` : ""}
+        <span className="footer-disclaimer">
+          Unofficial tool — not affiliated with or endorsed by the Fairfax County Park Authority.
         </span>
-        {DATA_DATE ? <span>· camp data imported {DATA_DATE}</span> : null}
+        <span className="footer-meta">
+          <span>
+            {APP_VERSION}
+            {SHOW_HASH ? ` (${GIT_HASH})` : ""}
+          </span>
+          {DATA_DATE ? <span>· camp data imported {DATA_DATE}</span> : null}
+        </span>
       </footer>
     </div>
   );
