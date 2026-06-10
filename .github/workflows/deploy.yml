@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    tags: ["v*"] # cutting a release (git push origin vX.Y.Z) redeploys with the tagged version
   workflow_dispatch:
 
 permissions:
