@@ -21,8 +21,12 @@ import type { Camp, FilterCriteria, Gazetteer, GeocodeResult } from "./lib/types
 const gazetteer = gazetteerData as Gazetteer;
 const DEFAULT_DATASET_URL = `${import.meta.env.BASE_URL}fcpa-camp-spreadsheet.xlsx`;
 // Build-time provenance, injected by vite.config.ts `define`.
+// APP_VERSION is `git describe` output, e.g. "v0.1.0" or "v0.1.0-3-gabc1234".
 const APP_VERSION = __APP_VERSION__;
 const GIT_HASH = __GIT_HASH__;
+// On exact tags the version has no hash, so show it; between releases the
+// version already ends in "-g<hash>", so the separate hash would be redundant.
+const SHOW_HASH = GIT_HASH !== "dev" && !APP_VERSION.includes(GIT_HASH);
 // Commit date of the bundled spreadsheet, e.g. "2026-06-06T18:29:00-04:00".
 const DATA_DATE = __DATA_DATE__ ? __DATA_DATE__.slice(0, 10) : "";
 // Baked in at build time from the ORS_KEY secret (CI) or .env.local (dev).
@@ -435,7 +439,8 @@ export default function App() {
 
       <footer className="app-footer no-print">
         <span>
-          v{APP_VERSION} ({GIT_HASH})
+          {APP_VERSION}
+          {SHOW_HASH ? ` (${GIT_HASH})` : ""}
         </span>
         {DATA_DATE ? <span>· camp data imported {DATA_DATE}</span> : null}
       </footer>
