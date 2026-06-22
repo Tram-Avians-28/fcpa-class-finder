@@ -23,13 +23,16 @@ export function ShortlistView({ camps, home, onToggleShortlist, onSelectCamp }: 
     );
   }
 
+  const totalFee = camps.reduce((sum, c) => sum + c.fee, 0);
+
   return (
     <div className="shortlist printable">
       <div className="shortlist-head">
         <div>
           <h2>My FCPA Camp Shortlist</h2>
           <div className="hint">
-            {camps.length} camp{camps.length === 1 ? "" : "s"}
+            {camps.length} camp{camps.length === 1 ? "" : "s"} · total{" "}
+            {totalFee.toLocaleString("en-US", { style: "currency", currency: "USD" })}
             {home ? ` · drive times from ${home.label}` : ""}
           </div>
         </div>
