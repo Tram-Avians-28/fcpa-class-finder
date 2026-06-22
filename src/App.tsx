@@ -447,6 +447,9 @@ export default function App() {
             {SHOW_HASH ? ` (${GIT_HASH})` : ""}
           </span>
           {DATA_DATE ? <span>· camp data imported {DATA_DATE}</span> : null}
+          <a href="https://github.com/Tram-Avians-28/fcpa-class-finder/issues" target="_blank" rel="noreferrer">
+            Report a bug
+          </a>
         </span>
       </footer>
     </div>
