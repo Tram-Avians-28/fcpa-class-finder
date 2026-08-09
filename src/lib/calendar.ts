@@ -58,7 +58,7 @@ export function campsToEvents(camps: Camp[]): CampEvent[] {
 /**
  * Expand one camp into per-day TIMED events within [rangeStart, rangeEnd)
  * (rangeEnd exclusive, matching FullCalendar's activeEnd). Multi-day camps skip
- * weekends; single-day camps are kept as-is. Camps without times fall back to an
+ * non-meeting days; legacy multi-day camps default to weekdays. Activities without times fall back to an
  * all-day block so they still appear.
  */
 export function expandCampToTimedEvents(
@@ -77,7 +77,11 @@ export function expandCampToTimedEvents(
   const out: CampEvent[] = [];
   for (let day = lower; day < upperExclusive; day = addDays(day, 1)) {
     const wd = weekday(day);
-    if (multiDay && (wd === 0 || wd === 6)) continue; // skip weekends for week-long camps
+    if (camp.meetingDays?.length) {
+      if (!camp.meetingDays.includes(wd)) continue;
+    } else if (multiDay && (wd === 0 || wd === 6)) {
+      continue; // legacy camp spreadsheets represent Mon–Fri spans
+    }
     out.push({
       id: `${camp.catalogId}-${day}`,
       title: camp.title,

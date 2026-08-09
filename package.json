@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Explore Fairfax County Park Authority summer camps by drive time, cost, and dates on a linked calendar + map.",
+  "description": "Explore Fairfax County Park Authority classes, camps, events, and programs on a linked calendar and map.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "gazetteer": "node scripts/build-gazetteer.mjs",
+    "gazetteer": "node scripts/build-gazetteer.mjs public/fcpa-activities.json",
+    "activities": "node scripts/fetch-activities.mjs",
     "check-phase": "node scripts/check-phase.mjs"
   },
   "dependencies": {

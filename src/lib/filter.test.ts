@@ -48,7 +48,11 @@ describe("filterCamps", () => {
   });
 
   it("filters by max fee", () => {
-    const camps = [camp({ catalogId: "A", fee: 89 }), camp({ catalogId: "B", fee: 200 })];
+    const camps = [
+      camp({ catalogId: "A", fee: 89 }),
+      camp({ catalogId: "B", fee: 200 }),
+      camp({ catalogId: "unknown", fee: null }),
+    ];
     expect(filterCamps(camps, { maxFee: 100 }).map((c) => c.catalogId)).toEqual(["A"]);
   });
 

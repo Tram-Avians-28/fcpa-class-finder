@@ -1,7 +1,8 @@
 /**
  * Build/extend src/data/gazetteer.json: venue name -> { town, lat, lng }.
  *
- * Geocodes the venues from the spreadsheet's "Lookup Tables" sheet.
+ * Geocodes venues from either the generated activity catalog JSON or the
+ * legacy spreadsheet's "Lookup Tables" sheet.
  *
  * Geocoders, in order per venue:
  *   1. Google Geocoding    (most accurate; only if GOOGLE_MAPS_API_KEY is set —
@@ -80,9 +81,31 @@ const MANUAL_COORDS = {
   "VA Academy of Fencing": { town: "Springfield", lat: 38.730438, lng: -77.185689 },
   // Google mis-placed this 3.4km into Great Falls village; real address 1089 Utterback Store Rd.
   "Great Falls Nike": { town: "Great Falls", lat: 38.995213, lng: -77.329267 },
+  // Vendor studios and small historic sites are not consistently indexed by
+  // Nominatim. Coordinates below are for their published street addresses.
+  "Lead By Example Fair Oaks": { town: "Fairfax", lat: 38.856635, lng: -77.335231 },
+  "Black Belt Academy Fairfax": { town: "Fairfax", lat: 38.825199, lng: -77.314795 },
+  "Legacy Martial Arts": { town: "Springfield", lat: 38.746374, lng: -77.192441 },
+  "Roundtree Park": { town: "Falls Church", lat: 38.851838, lng: -77.190526 },
+  "Jhoon Rhee Falls Church": { town: "Falls Church", lat: 38.893187, lng: -77.18795 },
+  "Historic Oak Hill House": { town: "Annandale", lat: 38.820891, lng: -77.239636 },
+  "Spindle Sears House": { town: "Centreville", lat: 38.841551, lng: -77.427228 },
 };
 
 function readVenues(file) {
+  if (file.toLowerCase().endsWith(".json")) {
+    const payload = JSON.parse(readFileSync(file, "utf8"));
+    const out = new Map();
+    for (const activity of payload.activities ?? []) {
+      const raw = String(activity.venue ?? "").trim();
+      if (!raw || activity.isVirtual || /^virtual/i.test(raw)) continue;
+      const name = canonical(raw);
+      if (!out.has(key(name))) {
+        out.set(key(name), { name, town: String(activity.community ?? "").trim() });
+      }
+    }
+    return [...out.values()];
+  }
   const wb = XLSX.read(readFileSync(file));
   const sheet = wb.SheetNames.find((n) => /lookup/i.test(n));
   if (!sheet) throw new Error("No 'Lookup Tables' sheet found.");

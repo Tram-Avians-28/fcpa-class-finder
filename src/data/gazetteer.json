@@ -34,6 +34,11 @@
     "lat": 38.771783,
     "lng": -77.06097
   },
+  "Black Belt Academy Fairfax": {
+    "town": "Fairfax",
+    "lat": 38.825199,
+    "lng": -77.314795
+  },
   "Braddock Elementary School": {
     "town": "Annandale",
     "lat": 38.822745,
@@ -99,10 +104,20 @@
     "lat": 38.837685,
     "lng": -77.15433
   },
+  "Clemyjontri Park": {
+    "town": "",
+    "lat": 38.94491,
+    "lng": -77.156293
+  },
   "Colin Powell Elementary School": {
     "town": "Centreville",
     "lat": 38.845736,
     "lng": -77.407237
+  },
+  "Collingwood Park": {
+    "town": "",
+    "lat": 38.735112,
+    "lng": -77.051979
   },
   "Colvin Run Elementary": {
     "town": "Vienna",
@@ -139,6 +154,11 @@
     "lat": 38.890082,
     "lng": -77.46855
   },
+  "Cunningham Park Elementary School": {
+    "town": "",
+    "lat": 38.892247,
+    "lng": -77.250114
+  },
   "Deer Park Elementary School": {
     "town": "Centreville",
     "lat": 38.855793,
@@ -163,6 +183,11 @@
     "town": "Chantilly",
     "lat": 38.884986,
     "lng": -77.438696
+  },
+  "Fairfax Ice Arena": {
+    "town": "",
+    "lat": 38.848672,
+    "lng": -77.272409
   },
   "Fairhill Elementary School": {
     "town": "Fairfax",
@@ -254,6 +279,11 @@
     "lat": 38.871856,
     "lng": -77.394385
   },
+  "Greenbriar Park": {
+    "town": "",
+    "lat": 38.865519,
+    "lng": -77.404395
+  },
   "Greenbriar West Elementary School": {
     "town": "Fairfax",
     "lat": 38.876302,
@@ -279,6 +309,11 @@
     "lat": 38.765753,
     "lng": -77.09501
   },
+  "Historic Oak Hill House": {
+    "town": "Annandale",
+    "lat": 38.820891,
+    "lng": -77.239636
+  },
   "Hunt Valley Elementary School": {
     "town": "Springfield",
     "lat": 38.762048,
@@ -298,6 +333,11 @@
     "town": "Falls Church",
     "lat": 38.868433,
     "lng": -77.228322
+  },
+  "Jhoon Rhee Falls Church": {
+    "town": "Falls Church",
+    "lat": 38.893187,
+    "lng": -77.18795
   },
   "Keene Mill Elementary School": {
     "town": "Springfield",
@@ -324,10 +364,30 @@
     "lat": 38.717478,
     "lng": -77.23335
   },
+  "Lead By Example Fair Oaks": {
+    "town": "Fairfax",
+    "lat": 38.856635,
+    "lng": -77.335231
+  },
+  "Legacy Martial Arts": {
+    "town": "Springfield",
+    "lat": 38.746374,
+    "lng": -77.192441
+  },
+  "Lemon Road Elementary School": {
+    "town": "",
+    "lat": 38.904427,
+    "lng": -77.196091
+  },
   "Lewinsville House": {
     "town": "McLean",
     "lat": 38.92864,
     "lng": -77.190769
+  },
+  "Little Run Elementary School": {
+    "town": "",
+    "lat": 38.825371,
+    "lng": -77.266551
   },
   "Louise Archer Elementary School": {
     "town": "Vienna",
@@ -378,6 +438,11 @@
     "town": "Falls Church",
     "lat": 38.849146,
     "lng": -77.123078
+  },
+  "Oak View Elementary School": {
+    "town": "",
+    "lat": 38.818965,
+    "lng": -77.30991
   },
   "Oakmont Rec Center": {
     "town": "Oakton",
@@ -444,6 +509,11 @@
     "lat": 38.729821,
     "lng": -77.094546
   },
+  "Roundtree Park": {
+    "town": "Falls Church",
+    "lat": 38.851838,
+    "lng": -77.190526
+  },
   "Royal Lake Park": {
     "town": "Fairfax",
     "lat": 38.804363,
@@ -474,6 +544,11 @@
     "lat": 38.750929,
     "lng": -77.275444
   },
+  "Spindle Sears House": {
+    "town": "Centreville",
+    "lat": 38.841551,
+    "lng": -77.427228
+  },
   "Spring Hill Elementary School": {
     "town": "McLean",
     "lat": 38.93749,
@@ -503,6 +578,11 @@
     "town": "Alexandria",
     "lat": 38.72824,
     "lng": -77.068768
+  },
+  "Stratton Woods Park": {
+    "town": "",
+    "lat": 38.942589,
+    "lng": -77.386015
   },
   "Sully Community Center": {
     "town": "Herndon",
@@ -588,5 +668,10 @@
     "town": "Mt. Vernon",
     "lat": 38.720032,
     "lng": -77.0961
+  },
+  "Woodson High School": {
+    "town": "",
+    "lat": 38.839953,
+    "lng": -77.276524
   }
 }

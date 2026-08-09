@@ -146,13 +146,13 @@ export function venueKey(name: string): string {
 
 /** Attach lat/lng to camps from a gazetteer, matching on venue name. */
 export function enrichWithGazetteer(camps: Camp[], gaz: Gazetteer): Camp[] {
-  const byKey = new Map<string, { lat: number; lng: number }>();
+  const byKey = new Map<string, { town: string; lat: number; lng: number }>();
   for (const [name, entry] of Object.entries(gaz)) {
-    byKey.set(venueKey(name), { lat: entry.lat, lng: entry.lng });
+    byKey.set(venueKey(name), { town: entry.town, lat: entry.lat, lng: entry.lng });
   }
   return camps.map((c) => {
     if (c.isVirtual) return c;
     const hit = byKey.get(venueKey(c.venue));
-    return hit ? { ...c, lat: hit.lat, lng: hit.lng } : c;
+    return hit ? { ...c, community: c.community || hit.town, lat: hit.lat, lng: hit.lng } : c;
   });
 }

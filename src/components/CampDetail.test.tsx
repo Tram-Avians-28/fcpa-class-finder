@@ -30,7 +30,6 @@ describe("CampDetail", () => {
     expect(screen.getByText(/Audrey Moore Rec Center/)).toBeInTheDocument();
     expect(screen.getByText(/\$139/)).toBeInTheDocument();
     expect(screen.getByText(/~21 min/)).toBeInTheDocument();
-    expect(screen.getByText(/Green/)).toBeInTheDocument(); // registration phase
   });
 
   it("toggles the shortlist", () => {
@@ -46,5 +45,17 @@ describe("CampDetail", () => {
     expect(screen.getByRole("button", { name: /remove from shortlist/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /close/i }));
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it("formats open-ended adult age ranges", () => {
+    render(
+      <CampDetail
+        camp={{ ...camp, title: "Adult Pottery", ageMin: 18, ageMax: null }}
+        onClose={() => {}}
+        inShortlist={false}
+        onToggleShortlist={() => {}}
+      />,
+    );
+    expect(screen.getByText("18+ yrs")).toBeInTheDocument();
   });
 });

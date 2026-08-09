@@ -1,23 +1,24 @@
-# FCPA Class Finder
+# FCPA Activity Finder
 
-Find Fairfax County Park Authority summer camps by **drive time, cost, and dates**,
-shown on a **linked calendar + map**, with a **printable shortlist** of registration codes.
+Find Fairfax County Park Authority **classes, camps, events, tours, and programs** by
+date, age, category, location, and drive time on a linked calendar and map. Save a
+printable shortlist of registration codes and open any session in Parktakes Online.
 
-A fully static, client-only React app — no backend, no database. It ships with the
-current camp spreadsheet bundled in and works out of the box; you can also upload a
-newer one.
+The deployed app is fully static. A scheduled GitHub Action collects the public
+registration catalog ahead of time, so visitors do not scrape Fairfax or encounter
+browser CORS restrictions.
 
 ## How it works
 
-1. The app loads the bundled FCPA camp spreadsheet (or your cached upload, or a fresh upload).
-2. It parses ~2,000+ camps and attaches venue coordinates from a shipped gazetteer.
+1. The app loads the bundled FCPA activity catalog (or a cached catalog upload).
+2. It validates each session and attaches venue coordinates from a shipped gazetteer.
 3. Enter your home address + a free [OpenRouteService](https://openrouteservice.org/dev/#/signup)
-   key to compute drive times; filter by date, cost, age, category, week, and drive time.
+   key to compute drive times; filter by date, age, category, location, and drive time.
 4. Calendar and map are color/pattern-coded by venue and linked by selection.
-5. Star camps into a shortlist and print the codes to register with.
+5. Star activities into a shortlist, print their codes, or open registration details.
 
-Your ORS key and shortlist live only in your browser (`localStorage`); nothing is sent
-anywhere except OpenRouteService.
+Your ORS key and shortlist live only in your browser (`localStorage`). Address searches
+and drive-time calculations go to OpenRouteService; the map loads OpenStreetMap tiles.
 
 ## Develop
 
@@ -33,26 +34,31 @@ ORS key during local testing. `.env.local` is gitignored and never included in C
 
 ## Data
 
-- Official source page: [Fairfax County Park Authority Camps](https://www.fairfaxcounty.gov/parks/camps), under **Ready, Set, Register! → Camp Spreadsheet**.
-- Official direct download: `https://www.fairfaxcounty.gov/parks/sites/parks/files/Assets/documents/camps/fcpa-camp-spreadsheet.xlsx`.
-- `public/fcpa-camp-spreadsheet.xlsx` — the bundled default dataset. Fairfax publishes
-  this as a rolling list of upcoming camps, so later downloads can contain fewer rows
-  as past sessions are removed and availability is refreshed.
-- `.github/workflows/refresh-data.yml` — a monthly Action that re-downloads the latest
-  sheet server-side and commits it if it changed (~12 requests/year).
+- Official source: [FCPA Activities Search](https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx).
+- `scripts/fetch-activities.mjs` — rate-limited server-side collector. Fairfax caps broad
+  searches at five pages, so the collector queries each program category separately and
+  subdivides saturated results by month, place, weekday, and age before deduplicating by
+  catalog ID.
+- `public/fcpa-activities.json` — generated rolling catalog loaded by the app.
+- `.github/workflows/refresh-data.yml` — weekly refresh, validation, and commit workflow.
+- Admission-ticket, boat/facility-rental, farmers-market, and similar inventory categories
+  are excluded from the default program catalog because their thousands of time-slot rows
+  would overwhelm a class/activity calendar. Set `FCPA_INCLUDE_INVENTORY=1` when running
+  the collector to include them.
+- `public/fcpa-camp-spreadsheet.xlsx` — the current official camp workbook, used as a
+  secondary source for camp fees and extended-care rows and for legacy workbook uploads.
+  It is no longer the default app dataset.
 - `src/test/fixtures/fcpa-camp-spreadsheet.xlsx` — a stable real-world parser fixture;
-  routine data refreshes intentionally do not replace it or its exact-count tests.
+  catalog refreshes intentionally do not replace its legacy-parser tests.
 - `fcpa-camp-spreadsheet.xlsx` — the original planning/reference snapshot described in
   `PLAN.md`; it is historical and is not loaded by the app.
 - `npm run gazetteer` — regenerates `src/data/gazetteer.json` (venue → lat/lng). Set
   `ORS_API_KEY` to enable the ORS geocoding fallback.
 
-To refresh the bundled data manually from the same official URL used by CI:
+To refresh the bundled catalog manually:
 
 ```bash
-curl -fSL --retry 3 \
-  -o public/fcpa-camp-spreadsheet.xlsx \
-  "https://www.fairfaxcounty.gov/parks/sites/parks/files/Assets/documents/camps/fcpa-camp-spreadsheet.xlsx"
+npm run activities
 npm test
 npm run build
 ```

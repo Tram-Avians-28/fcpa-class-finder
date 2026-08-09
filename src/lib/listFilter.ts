@@ -27,7 +27,7 @@ export function applyListFilters(camps: Camp[], f: ListFilter): Camp[] {
       if (c.ageMin != null && f.childAge < c.ageMin) return false;
       if (c.ageMax != null && f.childAge > c.ageMax) return false;
     }
-    if (f.maxFee != null && c.fee > f.maxFee) return false;
+    if (f.maxFee != null && (c.fee == null || c.fee > f.maxFee)) return false;
     if (f.maxDrive != null && (c.driveMinutes == null || c.driveMinutes > f.maxDrive)) return false;
     return true;
   });

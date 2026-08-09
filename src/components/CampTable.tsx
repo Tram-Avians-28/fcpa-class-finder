@@ -16,6 +16,8 @@ function fmtDate(iso: string): string {
 function fmtAge(camp: Camp): string {
   const f = (n: number | null) => (n == null ? "?" : Number.isInteger(n) ? String(n) : n.toFixed(1));
   if (camp.ageMin == null && camp.ageMax == null) return "—";
+  if (camp.ageMin != null && camp.ageMax == null) return `${f(camp.ageMin)}+`;
+  if (camp.ageMin === camp.ageMax) return f(camp.ageMin);
   return `${f(camp.ageMin)}–${f(camp.ageMax)}`;
 }
 
@@ -26,7 +28,7 @@ interface Props {
   showDrive?: boolean;
   /** Enable Excel-style per-column filters + sortable headers (List tab only). */
   filterable?: boolean;
-  /** When set, clicking a row opens the camp detail card. */
+  /** When set, clicking a row opens the activity detail card. */
   onSelectCamp?: (camp: Camp) => void;
 }
 
@@ -121,7 +123,7 @@ export function CampTable({
           <thead>
             <tr>
               <th className="no-print" aria-label="shortlist"></th>
-              {th("Camp", "title", tIn("title", "filter"))}
+              {th("Activity", "title", tIn("title", "filter"))}
               {th("Catalog ID", "catalogId", tIn("catalogId", "filter"))}
               {th("Category", "category", catSelect)}
               {th("Location", "venue", tIn("venue", "filter"))}
@@ -172,7 +174,7 @@ export function CampTable({
                   </td>
                   <td>{timeLabel(c) || "—"}</td>
                   <td>{fmtAge(c)}</td>
-                  <td>${c.fee}</td>
+                  <td>{c.fee == null ? "—" : `$${c.fee}`}</td>
                   {showDrive ? <td>{c.driveMinutes != null ? `~${c.driveMinutes} min` : "—"}</td> : null}
                 </tr>
               );

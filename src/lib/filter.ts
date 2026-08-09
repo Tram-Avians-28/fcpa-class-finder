@@ -28,7 +28,7 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
     }
 
     // Cost
-    if (f.maxFee != null && c.fee > f.maxFee) return false;
+    if (f.maxFee != null && (c.fee == null || c.fee > f.maxFee)) return false;
 
     // Ages: keep the camp if it fits ANY requested age (multiple kids / a range).
     if (ages.length) {

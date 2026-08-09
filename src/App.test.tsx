@@ -26,7 +26,7 @@ function fixtureFile(): File {
 }
 
 describe("App integration", () => {
-  it("uploads, parses, and renders camps end-to-end", async () => {
+  it("uploads, parses, and renders activities end-to-end", async () => {
     const { container } = render(<App />);
     expect(screen.getByText(/Get started/)).toBeInTheDocument();
 
@@ -34,7 +34,7 @@ describe("App integration", () => {
     fireEvent.change(input, { target: { files: [fixtureFile()] } });
 
     // Status bar reflects the parsed catalog.
-    await waitFor(() => expect(screen.getByText(/of 2151 camps/)).toBeInTheDocument(), {
+    await waitFor(() => expect(screen.getByText(/of 2151 activities/)).toBeInTheDocument(), {
       timeout: 5000,
     });
 
@@ -46,7 +46,7 @@ describe("App integration", () => {
     // changes with today's date because the default filter hides past sessions.
     fireEvent.click(screen.getByRole("button", { name: /^List/ }));
     const rows = await screen.findAllByRole("row");
-    const status = screen.getByText(/of 2151 camps/).textContent ?? "";
+    const status = screen.getByText(/of 2151 activities/).textContent ?? "";
     const shown = Number(status.match(/· (\d+) of/)?.[1]);
     expect(shown).toBeGreaterThan(0);
     expect(rows).toHaveLength(shown + 1); // one header row
@@ -56,7 +56,7 @@ describe("App integration", () => {
     const { container } = render(<App />);
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(input, { target: { files: [fixtureFile()] } });
-    await waitFor(() => expect(screen.getByText(/of 2151 camps/)).toBeInTheDocument(), {
+    await waitFor(() => expect(screen.getByText(/of 2151 activities/)).toBeInTheDocument(), {
       timeout: 5000,
     });
 
@@ -65,7 +65,7 @@ describe("App integration", () => {
     fireEvent.click(firstStar);
 
     fireEvent.click(screen.getByRole("button", { name: /^Shortlist/ }));
-    expect(screen.getByText(/My FCPA Camp Shortlist/)).toBeInTheDocument();
+    expect(screen.getByText(/My FCPA Activity Shortlist/)).toBeInTheDocument();
     // Shortlist table = header row + the one picked camp.
     expect(screen.getAllByRole("row")).toHaveLength(2);
   });
@@ -74,7 +74,7 @@ describe("App integration", () => {
     const { container } = render(<App />);
     const input = container.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(input, { target: { files: [fixtureFile()] } });
-    await waitFor(() => expect(screen.getByText(/of 2151 camps/)).toBeInTheDocument(), {
+    await waitFor(() => expect(screen.getByText(/of 2151 activities/)).toBeInTheDocument(), {
       timeout: 5000,
     });
 
@@ -82,7 +82,7 @@ describe("App integration", () => {
     fireEvent.change(feeInput, { target: { value: "40" } });
 
     await waitFor(() => {
-      const m = screen.getByText(/of 2151 camps/).textContent ?? "";
+      const m = screen.getByText(/of 2151 activities/).textContent ?? "";
       const shown = Number(m.match(/· (\d+) of/)?.[1]);
       expect(shown).toBeGreaterThan(0);
       expect(shown).toBeLessThan(2151);

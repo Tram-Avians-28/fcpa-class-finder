@@ -132,7 +132,7 @@ export function MapPanel({ camps, home, selectedVenue, onSelectVenue, venueStyle
                 <Popup>
                   <strong>{g.venue}</strong>
                   <br />
-                  {g.count} camp{g.count === 1 ? "" : "s"}
+                  {g.count} activit{g.count === 1 ? "y" : "ies"}
                   {g.minutes != null ? (
                     <>
                       <br />~{g.minutes} min drive

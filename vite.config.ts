@@ -22,8 +22,8 @@ const GIT_HASH = git("git rev-parse --short HEAD", "dev");
 // or this isn't a git checkout. Requires full history + tags in CI
 // (deploy.yml uses fetch-depth: 0, which fetches tags).
 const APP_VERSION = git("git describe --tags --dirty", "") || `v${pkg.version}`;
-// Commit date of the bundled spreadsheet = when the camp data was last imported.
-const DATA_DATE = git("git log -1 --format=%cI -- public/fcpa-camp-spreadsheet.xlsx", "");
+// Commit date of the bundled catalog = when the activity data was last imported.
+const DATA_DATE = git("git log -1 --format=%cI -- public/fcpa-activities.json", "");
 
 export default defineConfig({
   // Relative base so the built site works under any GitHub Pages subpath

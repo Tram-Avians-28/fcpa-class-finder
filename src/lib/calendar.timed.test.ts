@@ -44,6 +44,25 @@ describe("expandCampToTimedEvents", () => {
     expect(days).toHaveLength(10); // two Mon–Fri weeks
   });
 
+  it("uses explicit meeting weekdays for recurring classes", () => {
+    const ev = expandCampToTimedEvents(
+      camp({
+        title: "Saturday Pottery",
+        startDate: "2026-09-05",
+        endDate: "2026-09-26",
+        meetingDays: [6],
+      }),
+      "2026-09-01",
+      "2026-10-01",
+    );
+    expect(ev.map((event) => event.start.slice(0, 10))).toEqual([
+      "2026-09-05",
+      "2026-09-12",
+      "2026-09-19",
+      "2026-09-26",
+    ]);
+  });
+
   it("clips to the visible range", () => {
     const ev = expandCampToTimedEvents(camp(), "2026-07-08", "2026-07-10");
     // range [Wed, Fri) -> Wed + Thu only

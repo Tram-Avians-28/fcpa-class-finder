@@ -1,13 +1,15 @@
 import { safeGet, safeRemove } from "./storage";
 
 /**
- * Cache the uploaded camp spreadsheet (raw bytes) in localStorage so it can be
+ * Cache an uploaded activity catalog or legacy camp spreadsheet (raw bytes) in localStorage so it can be
  * restored on the next visit, and track how old it is for a staleness reminder.
  * The file is small (~250 KB); we store it base64-encoded.
  */
-const K_DATA = "camp_xlsx_b64";
-const K_NAME = "camp_xlsx_name";
-const K_AT = "camp_xlsx_at";
+// Versioned keys intentionally ignore the old camp-only cache after the app's
+// full-catalog migration.
+const K_DATA = "activity_data_v1_b64";
+const K_NAME = "activity_data_v1_name";
+const K_AT = "activity_data_v1_at";
 
 export const STALE_DAYS = 30;
 const DAY_MS = 86_400_000;

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { timeLabel } from "../lib/calendar";
-import { phaseForVenue } from "../lib/phase";
 import type { Camp } from "../lib/types";
 
 function fmtDate(iso: string): string {
@@ -17,6 +16,8 @@ function fmtDate(iso: string): string {
 function fmtAges(camp: Camp): string {
   const f = (n: number | null) => (n == null ? "?" : Number.isInteger(n) ? String(n) : n.toFixed(1));
   if (camp.ageMin == null && camp.ageMax == null) return "—";
+  if (camp.ageMin != null && camp.ageMax == null) return `${f(camp.ageMin)}+ yrs`;
+  if (camp.ageMin === camp.ageMax) return `${f(camp.ageMin)} yrs`;
   return `${f(camp.ageMin)}–${f(camp.ageMax)} yrs`;
 }
 
@@ -36,7 +37,6 @@ export function CampDetail({ camp, onClose, inShortlist, onToggleShortlist }: Pr
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const phase = phaseForVenue(camp.venue);
   const dates =
     camp.endDate && camp.endDate !== camp.startDate
       ? `${fmtDate(camp.startDate)} – ${fmtDate(camp.endDate)}`
@@ -71,17 +71,17 @@ export function CampDetail({ camp, onClose, inShortlist, onToggleShortlist }: Pr
           <dt>Ages</dt>
           <dd>{fmtAges(camp)}</dd>
           <dt>Fee</dt>
-          <dd>${camp.fee}</dd>
+          <dd>{camp.fee == null ? "See registration details" : `$${camp.fee}`}</dd>
           {camp.driveMinutes != null ? (
             <>
               <dt>Drive</dt>
               <dd>~{camp.driveMinutes} min</dd>
             </>
           ) : null}
-          {phase !== "unknown" ? (
+          {camp.seatsAvailable != null ? (
             <>
-              <dt>Registration</dt>
-              <dd>{phase === "green" ? "Green · opens Feb 3" : "Blue · opens Feb 5"}</dd>
+              <dt>Seats</dt>
+              <dd>{camp.seatsAvailable}</dd>
             </>
           ) : null}
           {camp.status ? (
@@ -91,6 +91,7 @@ export function CampDetail({ camp, onClose, inShortlist, onToggleShortlist }: Pr
             </>
           ) : null}
         </dl>
+        {camp.description ? <p>{camp.description}</p> : null}
         <div className="modal-actions">
           <button
             className={`shortlist-btn ${inShortlist ? "on" : ""}`}
@@ -98,6 +99,11 @@ export function CampDetail({ camp, onClose, inShortlist, onToggleShortlist }: Pr
           >
             {inShortlist ? "★ Remove from shortlist" : "☆ Add to shortlist"}
           </button>
+          {camp.detailUrl ? (
+            <a className="shortlist-btn" href={camp.detailUrl} target="_blank" rel="noreferrer">
+              Registration details
+            </a>
+          ) : null}
         </div>
       </div>
     </div>

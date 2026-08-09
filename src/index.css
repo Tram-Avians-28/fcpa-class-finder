@@ -79,7 +79,7 @@ button {
   .sidebar.open { display: block; }
   .main { padding: 12px; }
   .map-wrap { height: 300px; }
-  .topbar .status { display: none; } /* hide the "N of M camps" line on mobile */
+  .topbar .status { display: none; } /* hide the "N of M activities" line on mobile */
   /* Tighter calendar on phones: smaller title (date range), buttons, headers */
   .cal-wrap { padding: 6px; }
   .fc { font-size: 12px; }
@@ -164,7 +164,7 @@ button {
 .error { color: #b22; font-size: 13px; margin-top: 8px; }
 .drive-error { background: #fdecea; border: 1px solid #f5c6cb; border-radius: 6px; padding: 6px 8px; }
 
-/* Camp detail modal (opened by clicking a calendar event) */
+/* Activity detail modal (opened by clicking a calendar event) */
 .modal-backdrop {
   position: fixed;
   inset: 0;

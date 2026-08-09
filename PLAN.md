@@ -8,6 +8,8 @@ Status: historical planning snapshot. The app has since been implemented; see
 `README.md` for the current official data source and refresh process. The data
 profile below describes the original reference workbook
 (`fcpa-camp-spreadsheet.xlsx`, 2,151 camps), not the rolling bundled dataset.
+The production app now covers the broader Parktakes program catalog; the camp-only
+scope and client-upload architecture below are retained solely as historical context.
 
 ---
 

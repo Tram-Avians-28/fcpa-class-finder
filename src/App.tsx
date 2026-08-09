@@ -16,10 +16,11 @@ import { ShortlistView } from "./components/ShortlistView";
 import { clearDataset, daysSince, isStale, loadDataset, saveDataset } from "./lib/datasetCache";
 import { readSharedFromHash, shareUrl } from "./lib/shareState";
 import { safeGet, safeSet } from "./lib/storage";
+import { parseActivityCatalogBytes } from "./lib/activityData";
 import type { Camp, FilterCriteria, Gazetteer, GeocodeResult } from "./lib/types";
 
 const gazetteer = gazetteerData as Gazetteer;
-const DEFAULT_DATASET_URL = `${import.meta.env.BASE_URL}fcpa-camp-spreadsheet.xlsx`;
+const DEFAULT_DATASET_URL = `${import.meta.env.BASE_URL}fcpa-activities.json`;
 // Build-time provenance, injected by vite.config.ts `define`.
 // APP_VERSION is `git describe` output, e.g. "v0.1.0" or "v0.1.0-3-gabc1234".
 const APP_VERSION = __APP_VERSION__;
@@ -27,7 +28,7 @@ const GIT_HASH = __GIT_HASH__;
 // On exact tags the version has no hash, so show it; between releases the
 // version already ends in "-g<hash>", so the separate hash would be redundant.
 const SHOW_HASH = GIT_HASH !== "dev" && !APP_VERSION.includes(GIT_HASH);
-// Commit date of the bundled spreadsheet, e.g. "2026-06-06T18:29:00-04:00".
+// Commit date of the bundled activity catalog.
 const DATA_DATE = __DATA_DATE__ ? __DATA_DATE__.slice(0, 10) : "";
 // Baked in at build time from the ORS_KEY secret (CI) or .env.local (dev).
 const BUILT_IN_ORS_KEY = import.meta.env.VITE_ORS_KEY ?? "";
@@ -39,17 +40,25 @@ function todayISO(): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
+function daysFromTodayISO(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}`;
+}
+
 /** Default filters: show from today through the last day in the dataset. */
 function defaultCriteria(camps: Camp[]): FilterCriteria {
   const ends = camps.map((c) => c.endDate).filter(Boolean);
-  if (ends.length === 0) return { includeVirtual: false };
+  if (ends.length === 0) return { includeVirtual: true };
   const maxEnd = ends.reduce((m, d) => (d > m ? d : m));
   const minStart = camps.map((c) => c.startDate).filter(Boolean).reduce((m, d) => (d < m ? d : m), maxEnd);
   const today = todayISO();
+  const horizon = daysFromTodayISO(90);
   return {
-    includeVirtual: false,
+    includeVirtual: true,
     startDate: today <= maxEnd ? today : minStart,
-    endDate: maxEnd,
+    endDate: today <= maxEnd && horizon < maxEnd ? horizon : maxEnd,
     maxDriveMinutes: 30,
   };
 }
@@ -62,7 +71,7 @@ export default function App() {
   const [camps, setCamps] = useState<Camp[]>([]);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
-  const [criteria, setCriteria] = useState<FilterCriteria>(() => shared?.c ?? { includeVirtual: false });
+  const [criteria, setCriteria] = useState<FilterCriteria>(() => shared?.c ?? { includeVirtual: true });
   const [tab, setTab] = useState<Tab>(() =>
     shared?.t === "list" || shared?.t === "shortlist" ? shared.t : "calendar",
   );
@@ -114,10 +123,14 @@ export default function App() {
   const toggleShortlist = (id: string) => setShortlist((s) => toggleId(s, id));
   const forgetKey = () => setOrsKey("");
 
-  // Parse + load a dataset into state. Throws if the file isn't a camp workbook.
+  // Parse + load a full activity catalog or a legacy camp workbook.
   function ingest(bytes: ArrayBuffer, name: string): void {
-    const { camps: parsed } = parseWorkbook(bytes);
-    if (parsed.length === 0) throw new Error("No camps found in this file.");
+    const first = new Uint8Array(bytes, 0, Math.min(bytes.byteLength, 32));
+    const looksJson = name.toLowerCase().endsWith(".json") || new TextDecoder().decode(first).trimStart().startsWith("{");
+    const parsed = looksJson
+      ? parseActivityCatalogBytes(bytes).activities
+      : parseWorkbook(bytes).camps;
+    if (parsed.length === 0) throw new Error("No activities found in this file.");
     setCamps(enrichWithGazetteer(parsed, gazetteer));
     setFileName(name);
     // Honor a shared view on first load; otherwise apply default filters.
@@ -147,8 +160,7 @@ export default function App() {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  // On first load: restore the cached upload, else fetch the bundled default
-  // (kept current by a monthly GitHub Action). Either is overridable by upload.
+  // On first load: restore a cached upload, else fetch the CI-refreshed catalog.
   useEffect(() => {
     let cancelled = false;
     const cached = loadDataset();
@@ -166,7 +178,7 @@ export default function App() {
       .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error("no default dataset"))))
       .then((buf) => {
         if (cancelled) return;
-        ingest(buf, "FCPA camp spreadsheet (bundled)");
+        ingest(buf, "FCPA activities catalog (bundled)");
         setDataSavedAt(null);
         setUsingBundled(true);
       })
@@ -216,9 +228,15 @@ export default function App() {
   const weekLabels = useMemo(() => distinctWeekLabels(camps), [camps]);
   const venueOptions = useMemo(() => distinctVenues(camps), [camps]);
   const feeBounds = useMemo(() => {
-    if (camps.length === 0) return { min: 0, max: 1000 };
-    const fees = camps.map((c) => c.fee);
-    return { min: Math.min(...fees), max: Math.max(...fees) };
+    if (camps.length === 0) return { min: 0, max: 1000, known: 0, total: 0 };
+    const fees = camps.map((c) => c.fee).filter((fee): fee is number => fee != null);
+    if (fees.length === 0) return { min: 0, max: 1000, known: 0, total: camps.length };
+    return {
+      min: Math.min(...fees),
+      max: Math.max(...fees),
+      known: fees.length,
+      total: camps.length,
+    };
   }, [camps]);
   // Open the calendar on the default start (today, clamped into the season).
   const initialDate = useMemo(() => defaultCriteria(camps).startDate || "2026-06-22", [camps]);
@@ -251,7 +269,7 @@ export default function App() {
             rel="noreferrer"
             title="Open Parktakes Online registration"
           >
-            FCPA Camps
+            FCPA Activities
           </a>
         </h1>
         {camps.length > 0 ? (
@@ -265,14 +283,14 @@ export default function App() {
         ) : null}
         <span className="status">
           {camps.length > 0
-            ? `${fileName} · ${filtered.length} of ${camps.length} camps`
-            : "Find Fairfax County summer camps by date, cost & drive time"}
+            ? `${fileName} · ${filtered.length} of ${camps.length} activities`
+            : "Find Fairfax County classes, camps & activities by date, age and location"}
         </span>
         <span className="spacer" />
         <input
           ref={fileRef}
           type="file"
-          accept=".xlsx,.xls"
+          accept=".json,.xlsx,.xls"
           style={{ display: "none" }}
           onChange={(e) => {
             const f = e.target.files?.[0];
@@ -291,19 +309,19 @@ export default function App() {
           <div className="card">
             <h2>Get started</h2>
             <p>
-              Download the official Fairfax County Park Authority camp spreadsheet from{" "}
-              <a href="https://www.fairfaxcounty.gov/parks/camps" target="_blank" rel="noreferrer">
-                fairfaxcounty.gov/parks/camps
+              Browse the official Fairfax County Park Authority activity catalog at{" "}
+              <a href="https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx" target="_blank" rel="noreferrer">
+                Parktakes Online
               </a>
-              , then upload it here to explore camps on a calendar and map, filtered by date, cost,
-              age, and drive time from your home.
+              . If the bundled catalog cannot load, you can upload a generated catalog JSON or a
+              legacy camp spreadsheet here.
             </p>
             <button
               className="upload-btn"
               style={{ background: "var(--accent)" }}
               onClick={() => fileRef.current?.click()}
             >
-              Upload spreadsheet
+              Upload catalog
             </button>
             {error ? <div className="error">{error}</div> : null}
           </div>
@@ -313,10 +331,10 @@ export default function App() {
           {stale ? (
             <div className="stale-banner no-print">
               <span>
-                ⚠️ Your camp data is {daysSince(dataSavedAt!, Date.now())} days old — listings may have
-                changed. Download the latest from{" "}
-                <a href="https://www.fairfaxcounty.gov/parks/camps" target="_blank" rel="noreferrer">
-                  fairfaxcounty.gov/parks/camps
+                ⚠️ Your activity data is {daysSince(dataSavedAt!, Date.now())} days old — listings may have
+                changed. Check the latest at{" "}
+                <a href="https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx" target="_blank" rel="noreferrer">
+                  Parktakes Online
                 </a>{" "}
                 and re-upload.
               </span>
@@ -380,7 +398,7 @@ export default function App() {
 
             {selectedVenue && tab !== "shortlist" ? (
               <div className="selbar">
-                Showing <strong>{selectedVenue}</strong> ({venueCamps.length} camps)
+                Showing <strong>{selectedVenue}</strong> ({venueCamps.length} activities)
                 <button className="clear-link" onClick={() => setSelectedVenue(null)}>
                   clear
                 </button>
@@ -446,7 +464,7 @@ export default function App() {
             {APP_VERSION}
             {SHOW_HASH ? ` (${GIT_HASH})` : ""}
           </span>
-          {DATA_DATE ? <span>· camp data imported {DATA_DATE}</span> : null}
+          {DATA_DATE ? <span>· activity data imported {DATA_DATE}</span> : null}
           <a href="https://github.com/Tram-Avians-28/fcpa-class-finder/issues" target="_blank" rel="noreferrer">
             Report a bug
           </a>

@@ -1,11 +1,11 @@
-/** A single camp offering, normalized from the FCPA spreadsheet. */
-export interface Camp {
+/** A single registrable FCPA activity session. */
+export interface Activity {
   title: string;
   category: string; // "Uncategorized" when the source cell is blank
   catalogId: string; // registration code, e.g. "33S.QI2N"
   community: string; // town the camp is associated with
   venue: string; // specific facility/location name
-  fee: number;
+  fee: number | null;
   startDate: string; // ISO "YYYY-MM-DD"
   endDate: string; // ISO "YYYY-MM-DD"
   startTime: string | null; // 24h "HH:MM"
@@ -14,12 +14,29 @@ export interface Camp {
   ageMax: number | null;
   weekLabel: string; // e.g. "Week 1 (June 22-26)"
   status: string;
+  description?: string;
+  scheduleText?: string;
+  meetingDays?: number[]; // 0=Sunday .. 6=Saturday
+  seatsAvailable?: number | null;
+  detailUrl?: string;
   isVirtual: boolean;
   /** Filled in by gazetteer enrichment; undefined until then. */
   lat?: number;
   lng?: number;
   /** Filled in by the drive-time matrix; null means unreachable/unknown. */
   driveMinutes?: number | null;
+}
+
+/** Backwards-compatible internal alias while legacy camp spreadsheet uploads remain supported. */
+export type Camp = Activity;
+
+export interface ActivityCatalog {
+  version: number;
+  generatedAt: string;
+  sourceUrl: string;
+  startDate: string;
+  excludedCategories?: string[];
+  activities: Activity[];
 }
 
 /** A venue name → town pairing read from the spreadsheet's "Lookup Tables". */

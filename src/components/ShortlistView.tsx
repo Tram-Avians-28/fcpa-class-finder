@@ -15,7 +15,7 @@ export function ShortlistView({ camps, home, onToggleShortlist, onSelectCamp }: 
         <div className="card">
           <h2>Your shortlist is empty</h2>
           <p>
-            Add camps with the ★ button in the List view, then come back here to print a clean sheet
+            Add activities with the ★ button in the List view, then come back here to print a clean sheet
             of catalog/registration codes to register with.
           </p>
         </div>
@@ -23,16 +23,19 @@ export function ShortlistView({ camps, home, onToggleShortlist, onSelectCamp }: 
     );
   }
 
-  const totalFee = camps.reduce((sum, c) => sum + c.fee, 0);
+  const knownFees = camps.filter((camp) => camp.fee != null);
+  const totalFee = knownFees.reduce((sum, camp) => sum + camp.fee!, 0);
 
   return (
     <div className="shortlist printable">
       <div className="shortlist-head">
         <div>
-          <h2>My FCPA Camp Shortlist</h2>
+          <h2>My FCPA Activity Shortlist</h2>
           <div className="hint">
-            {camps.length} camp{camps.length === 1 ? "" : "s"} · total{" "}
-            {totalFee.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+            {camps.length} activit{camps.length === 1 ? "y" : "ies"}
+            {knownFees.length ? (
+              <> · known total {totalFee.toLocaleString("en-US", { style: "currency", currency: "USD" })}</>
+            ) : null}
             {home ? ` · drive times from ${home.label}` : ""}
           </div>
         </div>

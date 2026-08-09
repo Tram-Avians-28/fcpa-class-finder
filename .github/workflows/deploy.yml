@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # Full history so `git log` can resolve the camp-spreadsheet commit
+        # Full history so `git log` can resolve the activity-catalog commit
         # date (the "data imported" footer); a shallow clone reports the
         # deploy commit instead.
         with:

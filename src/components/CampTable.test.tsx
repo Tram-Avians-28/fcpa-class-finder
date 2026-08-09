@@ -71,7 +71,7 @@ describe("CampTable filtering", () => {
     const { container } = render(
       <CampTable camps={camps} shortlist={new Set()} onToggleShortlist={noop} filterable />,
     );
-    fireEvent.click(screen.getByRole("button", { name: /^Camp/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Activity/ }));
     const first = container.querySelector("tbody tr td:nth-child(2)")?.textContent;
     expect(first).toBe("LEGO Robotics"); // alphabetical ascending
   });

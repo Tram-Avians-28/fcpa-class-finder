@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { parseAges } from "../lib/ages";
-import { type Phase, PHASE_LABELS, phaseForVenue } from "../lib/phase";
 import type { FilterCriteria } from "../lib/types";
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
   categories: string[];
   weekLabels: string[];
   venues: string[];
-  feeBounds: { min: number; max: number };
+  feeBounds: { min: number; max: number; known: number; total: number };
 }
 
 function toggle(list: string[] | undefined, value: string): string[] {
@@ -23,12 +22,9 @@ function toggle(list: string[] | undefined, value: string): string[] {
 export function Filters({ criteria, onChange, onReset, categories, weekLabels, venues, feeBounds }: Props) {
   const [venueSearch, setVenueSearch] = useState("");
   const selectedVenues = criteria.venues ?? [];
-  const selectedPhases = criteria.phases ?? [];
   const search = venueSearch.trim().toLowerCase();
   const shownVenues = venues.filter(
-    (v) =>
-      (selectedPhases.length === 0 || selectedPhases.includes(phaseForVenue(v) as Phase)) &&
-      (!search || v.toLowerCase().includes(search)),
+    (v) => !search || v.toLowerCase().includes(search),
   );
   return (
     <>
@@ -50,20 +46,25 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
         />
       </div>
 
-      <h2>Cost &amp; age</h2>
-      <div className="field">
-        <label>Max fee ($){criteria.maxFee != null ? `: ${criteria.maxFee}` : ""}</label>
-        <input
-          type="number"
-          min={feeBounds.min}
-          max={feeBounds.max}
-          placeholder={`up to ${feeBounds.max}`}
-          value={criteria.maxFee ?? ""}
-          onChange={(e) =>
-            onChange({ maxFee: e.target.value === "" ? undefined : Number(e.target.value) })
-          }
-        />
-      </div>
+      <h2>{feeBounds.known ? "Cost & age" : "Age"}</h2>
+      {feeBounds.known ? (
+        <div className="field">
+          <label>
+            Max fee ($){criteria.maxFee != null ? `: ${criteria.maxFee}` : ""}
+            {feeBounds.known < feeBounds.total ? " · excludes unknown fees" : ""}
+          </label>
+          <input
+            type="number"
+            min={feeBounds.min}
+            max={feeBounds.max}
+            placeholder={`up to ${feeBounds.max}`}
+            value={criteria.maxFee ?? ""}
+            onChange={(e) =>
+              onChange({ maxFee: e.target.value === "" ? undefined : Number(e.target.value) })
+            }
+          />
+        </div>
+      ) : null}
       <div className="field">
         <label>Child age(s)</label>
         <input
@@ -93,37 +94,28 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
         ))}
       </div>
 
-      <h2>Week</h2>
-      <div className="checklist">
-        {weekLabels.map((wk) => (
-          <label key={wk}>
-            <input
-              type="checkbox"
-              checked={(criteria.weekLabels ?? []).includes(wk)}
-              onChange={() => onChange({ weekLabels: toggle(criteria.weekLabels, wk) })}
-            />
-            {wk}
-          </label>
-        ))}
-      </div>
+      {weekLabels.length ? (
+        <>
+          <h2>Camp week</h2>
+          <div className="checklist">
+            {weekLabels.map((wk) => (
+              <label key={wk}>
+                <input
+                  type="checkbox"
+                  checked={(criteria.weekLabels ?? []).includes(wk)}
+                  onChange={() => onChange({ weekLabels: toggle(criteria.weekLabels, wk) })}
+                />
+                {wk}
+              </label>
+            ))}
+          </div>
+        </>
+      ) : null}
 
       <h2>
         Location
         {selectedVenues.length ? <span className="count-pill">{selectedVenues.length}</span> : null}
       </h2>
-      <div className="phase-row">
-        {(["green", "blue"] as Phase[]).map((p) => (
-          <button
-            key={p}
-            className={`phase-pill ${p} ${selectedPhases.includes(p) ? "on" : ""}`}
-            title={`${PHASE_LABELS[p]} (registration phase)`}
-            aria-pressed={selectedPhases.includes(p)}
-            onClick={() => onChange({ phases: toggle(criteria.phases, p) as Phase[] })}
-          >
-            {p === "green" ? "Green · Feb 3" : "Blue · Feb 5"}
-          </button>
-        ))}
-      </div>
       <input
         type="text"
         className="venue-search"
@@ -153,7 +145,7 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
             checked={criteria.includeVirtual ?? true}
             onChange={(e) => onChange({ includeVirtual: e.target.checked })}
           />{" "}
-          Include virtual camps
+          Include virtual activities
         </label>
       </div>
 
