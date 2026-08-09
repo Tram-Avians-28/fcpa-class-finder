@@ -163,28 +163,32 @@ export default function App() {
   // On first load: restore a cached upload, else fetch the CI-refreshed catalog.
   useEffect(() => {
     let cancelled = false;
-    const cached = loadDataset();
-    if (cached) {
-      try {
-        ingest(cached.bytes, cached.fileName);
-        setDataSavedAt(cached.savedAt || null);
-        setUsingBundled(false);
-        return;
-      } catch {
-        clearDataset();
+    void (async () => {
+      const cached = await loadDataset();
+      if (cancelled) return;
+      if (cached) {
+        try {
+          ingest(cached.bytes, cached.fileName);
+          setDataSavedAt(cached.savedAt || null);
+          setUsingBundled(false);
+          return;
+        } catch {
+          await clearDataset();
+          if (cancelled) return;
+        }
       }
-    }
-    fetch(DEFAULT_DATASET_URL)
-      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error("no default dataset"))))
-      .then((buf) => {
+      try {
+        const response = await fetch(DEFAULT_DATASET_URL);
+        if (!response.ok) throw new Error("no default dataset");
+        const buf = await response.arrayBuffer();
         if (cancelled) return;
         ingest(buf, "FCPA activities catalog (bundled)");
         setDataSavedAt(null);
         setUsingBundled(true);
-      })
-      .catch(() => {
+      } catch {
         /* no default available — the upload prompt is shown */
-      });
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -196,7 +200,7 @@ export default function App() {
     try {
       const buf = await file.arrayBuffer();
       ingest(buf, file.name);
-      setDataSavedAt(saveDataset(buf, file.name));
+      setDataSavedAt(await saveDataset(buf, file.name));
       setUsingBundled(false);
       setStaleDismissed(false);
     } catch (err) {

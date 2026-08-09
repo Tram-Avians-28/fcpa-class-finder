@@ -1,4 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { JSDOM } from "jsdom";
 import * as XLSX from "xlsx";
 
@@ -6,7 +8,7 @@ const SEARCH_URL =
   "https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx";
 const OUTPUT = new URL("../public/fcpa-activities.json", import.meta.url);
 const CAMP_WORKBOOK = new URL("../public/fcpa-camp-spreadsheet.xlsx", import.meta.url);
-const CHECKPOINT = new URL("file:///private/tmp/fcpa-activities-progress.json");
+const CHECKPOINT = join(tmpdir(), "fcpa-activities-progress.json");
 const PAGE_SIZE = 50;
 const MAX_PAGES = 5;
 const CHECKPOINT_VERSION = 3;

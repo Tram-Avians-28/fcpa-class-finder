@@ -1,15 +1,19 @@
 import { safeGet, safeRemove } from "./storage";
 
 /**
- * Cache an uploaded activity catalog or legacy camp spreadsheet (raw bytes) in localStorage so it can be
- * restored on the next visit, and track how old it is for a staleness reminder.
- * The file is small (~250 KB); we store it base64-encoded.
+ * Cache an uploaded activity catalog or legacy camp spreadsheet (raw bytes) in
+ * IndexedDB so it can be restored on the next visit. The generated catalog is
+ * too large for localStorage once base64-encoded.
  */
-// Versioned keys intentionally ignore the old camp-only cache after the app's
-// full-catalog migration.
-const K_DATA = "activity_data_v1_b64";
-const K_NAME = "activity_data_v1_name";
-const K_AT = "activity_data_v1_at";
+const DB_NAME = "fcpa-activity-finder";
+const DB_VERSION = 1;
+const STORE_NAME = "datasets";
+const CURRENT_DATASET = "current";
+
+// A short-lived version of the catalog migration used these localStorage keys.
+// Read them once so users on browsers with a larger quota retain their upload,
+// then remove them after migrating to IndexedDB.
+const LEGACY_DATA_KEYS = ["activity_data_v1_b64", "activity_data_v1_name", "activity_data_v1_at"] as const;
 
 export const STALE_DAYS = 30;
 const DAY_MS = 86_400_000;
@@ -45,38 +49,123 @@ export interface CachedDataset {
   savedAt: number;
 }
 
-/** Returns the saved-at timestamp, or null if caching failed (e.g. over quota). */
-export function saveDataset(buf: ArrayBuffer, fileName: string): number | null {
-  const ls = globalThis.localStorage;
-  if (!ls) return null;
-  const savedAt = Date.now();
-  try {
-    ls.setItem(K_DATA, bytesToBase64(buf));
-    ls.setItem(K_NAME, fileName);
-    ls.setItem(K_AT, String(savedAt));
-    return savedAt;
-  } catch {
-    clearDataset(); // don't leave a half-written/truncated file
-    return null;
-  }
+interface StoredDataset extends CachedDataset {
+  id: string;
 }
 
-export function loadDataset(): CachedDataset | null {
-  const b64 = safeGet(K_DATA);
+function openDatabase(): Promise<IDBDatabase | null> {
+  if (!globalThis.indexedDB) return Promise.resolve(null);
+  return new Promise((resolve, reject) => {
+    const request = globalThis.indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: "id" });
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error ?? new Error("Could not open the dataset cache."));
+  });
+}
+
+function transactionDone(transaction: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error ?? new Error("Dataset cache transaction failed."));
+    transaction.onabort = () => reject(transaction.error ?? new Error("Dataset cache transaction was aborted."));
+  });
+}
+
+function requestResult<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error ?? new Error("Dataset cache request failed."));
+  });
+}
+
+function clearLegacyDataset(): void {
+  for (const key of LEGACY_DATA_KEYS) safeRemove(key);
+}
+
+function loadLegacyDataset(): CachedDataset | null {
+  const b64 = safeGet(LEGACY_DATA_KEYS[0]);
   if (!b64) return null;
   try {
     return {
       bytes: base64ToBytes(b64),
-      fileName: safeGet(K_NAME) || "cached spreadsheet",
-      savedAt: Number(safeGet(K_AT)) || 0,
+      fileName: safeGet(LEGACY_DATA_KEYS[1]) || "cached activity data",
+      savedAt: Number(safeGet(LEGACY_DATA_KEYS[2])) || 0,
     };
   } catch {
+    clearLegacyDataset();
     return null;
   }
 }
 
-export function clearDataset(): void {
-  safeRemove(K_DATA);
-  safeRemove(K_NAME);
-  safeRemove(K_AT);
+/** Returns the saved-at timestamp, or null if persistent browser storage is unavailable. */
+export async function saveDataset(buf: ArrayBuffer, fileName: string): Promise<number | null> {
+  let db: IDBDatabase | null = null;
+  try {
+    db = await openDatabase();
+    if (!db) return null;
+    const savedAt = Date.now();
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const done = transactionDone(transaction);
+    transaction.objectStore(STORE_NAME).put({
+      id: CURRENT_DATASET,
+      bytes: buf,
+      fileName,
+      savedAt,
+    } satisfies StoredDataset);
+    await done;
+    clearLegacyDataset();
+    return savedAt;
+  } catch {
+    return null;
+  } finally {
+    db?.close();
+  }
+}
+
+export async function loadDataset(): Promise<CachedDataset | null> {
+  let db: IDBDatabase | null = null;
+  try {
+    db = await openDatabase();
+    if (db) {
+      const transaction = db.transaction(STORE_NAME, "readonly");
+      const done = transactionDone(transaction);
+      const stored = await requestResult(
+        transaction.objectStore(STORE_NAME).get(CURRENT_DATASET) as IDBRequest<StoredDataset | undefined>,
+      );
+      await done;
+      if (stored) {
+        return { bytes: stored.bytes, fileName: stored.fileName, savedAt: stored.savedAt };
+      }
+    }
+  } catch {
+    // A disabled or unavailable IndexedDB cache should not prevent app startup.
+  } finally {
+    db?.close();
+  }
+
+  const legacy = loadLegacyDataset();
+  if (!legacy) return null;
+  const migratedAt = await saveDataset(legacy.bytes, legacy.fileName);
+  if (migratedAt != null) clearLegacyDataset();
+  return legacy;
+}
+
+export async function clearDataset(): Promise<void> {
+  clearLegacyDataset();
+  let db: IDBDatabase | null = null;
+  try {
+    db = await openDatabase();
+    if (!db) return;
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const done = transactionDone(transaction);
+    transaction.objectStore(STORE_NAME).delete(CURRENT_DATASET);
+    await done;
+  } catch {
+    // Storage may be disabled or unavailable; there is nothing else to clear.
+  } finally {
+    db?.close();
+  }
 }
