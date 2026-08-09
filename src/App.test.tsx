@@ -42,10 +42,14 @@ describe("App integration", () => {
     expect(screen.getByTestId("map")).toBeInTheDocument();
     expect(screen.getByTestId("calendar")).toBeInTheDocument();
 
-    // The List tab renders a row per camp.
+    // The List tab renders one row per currently visible camp. The exact count
+    // changes with today's date because the default filter hides past sessions.
     fireEvent.click(screen.getByRole("button", { name: /^List/ }));
     const rows = await screen.findAllByRole("row");
-    expect(rows.length).toBeGreaterThan(1000);
+    const status = screen.getByText(/of 2151 camps/).textContent ?? "";
+    const shown = Number(status.match(/· (\d+) of/)?.[1]);
+    expect(shown).toBeGreaterThan(0);
+    expect(rows).toHaveLength(shown + 1); // one header row
   });
 
   it("adds a camp to the shortlist and shows it under the Shortlist tab", async () => {

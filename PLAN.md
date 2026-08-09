@@ -4,8 +4,10 @@ A web app that makes Fairfax County Park Authority (FCPA) **kids' summer camps**
 explorable by **drive time, cost, and dates**, showing results on a **calendar and
 map simultaneously**, and producing a **printable list of registration codes**.
 
-Status: planning / refining. No code yet. Data model now verified against the
-real spreadsheet (`fcpa-camp-spreadsheet.xlsx`, 2,151 camps).
+Status: historical planning snapshot. The app has since been implemented; see
+`README.md` for the current official data source and refresh process. The data
+profile below describes the original reference workbook
+(`fcpa-camp-spreadsheet.xlsx`, 2,151 camps), not the rolling bundled dataset.
 
 ---
 

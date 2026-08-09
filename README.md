@@ -33,11 +33,29 @@ ORS key during local testing. `.env.local` is gitignored and never included in C
 
 ## Data
 
-- `public/fcpa-camp-spreadsheet.xlsx` — the bundled default dataset.
+- Official source page: [Fairfax County Park Authority Camps](https://www.fairfaxcounty.gov/parks/camps), under **Ready, Set, Register! → Camp Spreadsheet**.
+- Official direct download: `https://www.fairfaxcounty.gov/parks/sites/parks/files/Assets/documents/camps/fcpa-camp-spreadsheet.xlsx`.
+- `public/fcpa-camp-spreadsheet.xlsx` — the bundled default dataset. Fairfax publishes
+  this as a rolling list of upcoming camps, so later downloads can contain fewer rows
+  as past sessions are removed and availability is refreshed.
 - `.github/workflows/refresh-data.yml` — a monthly Action that re-downloads the latest
   sheet server-side and commits it if it changed (~12 requests/year).
+- `src/test/fixtures/fcpa-camp-spreadsheet.xlsx` — a stable real-world parser fixture;
+  routine data refreshes intentionally do not replace it or its exact-count tests.
+- `fcpa-camp-spreadsheet.xlsx` — the original planning/reference snapshot described in
+  `PLAN.md`; it is historical and is not loaded by the app.
 - `npm run gazetteer` — regenerates `src/data/gazetteer.json` (venue → lat/lng). Set
   `ORS_API_KEY` to enable the ORS geocoding fallback.
+
+To refresh the bundled data manually from the same official URL used by CI:
+
+```bash
+curl -fSL --retry 3 \
+  -o public/fcpa-camp-spreadsheet.xlsx \
+  "https://www.fairfaxcounty.gov/parks/sites/parks/files/Assets/documents/camps/fcpa-camp-spreadsheet.xlsx"
+npm test
+npm run build
+```
 
 ## Deploy (GitHub Pages)
 
