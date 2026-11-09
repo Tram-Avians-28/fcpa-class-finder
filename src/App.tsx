@@ -52,13 +52,13 @@ function daysFromTodayISO(days: number): string {
 /** Default filters: show from today through the last day in the dataset. */
 function defaultCriteria(camps: Camp[]): FilterCriteria {
   const ends = camps.map((c) => c.endDate).filter(Boolean);
-  if (ends.length === 0) return { includeVirtual: true };
+  if (ends.length === 0) return { includeVirtual: false };
   const maxEnd = ends.reduce((m, d) => (d > m ? d : m));
   const minStart = camps.map((c) => c.startDate).filter(Boolean).reduce((m, d) => (d < m ? d : m), maxEnd);
   const today = todayISO();
   const horizon = daysFromTodayISO(90);
   return {
-    includeVirtual: true,
+    includeVirtual: false,
     startDate: today <= maxEnd ? today : minStart,
     endDate: today <= maxEnd && horizon < maxEnd ? horizon : maxEnd,
     maxDriveMinutes: 30,
@@ -73,7 +73,7 @@ export default function App() {
   const [camps, setCamps] = useState<Camp[]>([]);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
-  const [criteria, setCriteria] = useState<FilterCriteria>(() => shared?.c ?? { includeVirtual: true });
+  const [criteria, setCriteria] = useState<FilterCriteria>(() => shared?.c ?? { includeVirtual: false });
   const [tab, setTab] = useState<Tab>(() =>
     shared?.t === "list" || shared?.t === "shortlist" ? shared.t : "calendar",
   );

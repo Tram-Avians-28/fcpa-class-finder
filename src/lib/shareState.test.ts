@@ -12,6 +12,10 @@ describe("shareState", () => {
   it("round-trips a view through encode/decode", () => {
     expect(decodeView(encodeView(view))).toEqual(view);
   });
+  it("preserves search text and an explicitly empty category selection", () => {
+    const searched = { ...view, c: { ...view.c, searchText: '“water exercise” swimming -"deep water"', categories: [] } };
+    expect(decodeView(encodeView(searched))).toEqual(searched);
+  });
   it("returns null on garbage", () => {
     expect(decodeView("not base64 %%%")).toBeNull();
     expect(decodeView(btoa("[]"))).toBeNull(); // not an object with criteria
