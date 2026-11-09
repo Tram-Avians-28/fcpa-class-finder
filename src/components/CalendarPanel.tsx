@@ -59,9 +59,15 @@ export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectCamp,
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "timeGridWeek,dayGridWeek,dayGridMonth,listWeek",
+          right: "timeGridDay,timeGridWeek,dayGridWeek,dayGridMonth,listWeek",
         }}
-        buttonText={{ timeGridWeek: "week (hours)", dayGridWeek: "week", dayGridMonth: "month", listWeek: "list" }}
+        buttonText={{
+          timeGridDay: "day",
+          timeGridWeek: "week (hours)",
+          dayGridWeek: "week",
+          dayGridMonth: "month",
+          listWeek: "list",
+        }}
         events={events}
         height="auto"
         dayMaxEvents={6}

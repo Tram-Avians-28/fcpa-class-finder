@@ -28,8 +28,10 @@ const GIT_HASH = __GIT_HASH__;
 // On exact tags the version has no hash, so show it; between releases the
 // version already ends in "-g<hash>", so the separate hash would be redundant.
 const SHOW_HASH = GIT_HASH !== "dev" && !APP_VERSION.includes(GIT_HASH);
-// Commit date of the bundled activity catalog.
-const DATA_DATE = __DATA_DATE__ ? __DATA_DATE__.slice(0, 10) : "";
+// Refresh date recorded in the bundled activity catalog.
+const DATA_DATE = __DATA_DATE__
+  ? new Intl.DateTimeFormat("en-CA").format(new Date(__DATA_DATE__))
+  : "";
 // Baked in at build time from the ORS_KEY secret (CI) or .env.local (dev).
 const BUILT_IN_ORS_KEY = import.meta.env.VITE_ORS_KEY ?? "";
 type Tab = "calendar" | "list" | "shortlist";

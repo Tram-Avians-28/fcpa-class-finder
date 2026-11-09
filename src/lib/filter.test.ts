@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  activityMeetsOnWeekday,
   dateRangesOverlap,
   distinctCategories,
   distinctWeekLabels,
@@ -45,6 +46,31 @@ describe("filterCamps", () => {
     ];
     const out = filterCamps(camps, { startDate: "2026-07-01", endDate: "2026-07-15" });
     expect(out.map((c) => c.catalogId)).toEqual(["A"]);
+  });
+
+  it("filters recurring activities by any selected weekday", () => {
+    const camps = [
+      camp({ catalogId: "sat", meetingDays: [6], startDate: "2026-07-04", endDate: "2026-07-25" }),
+      camp({ catalogId: "sun", meetingDays: [0], startDate: "2026-07-05", endDate: "2026-07-26" }),
+      camp({ catalogId: "mw", meetingDays: [1, 3] }),
+    ];
+    expect(filterCamps(camps, { weekdays: [0, 6] }).map((c) => c.catalogId)).toEqual(["sat", "sun"]);
+  });
+
+  it("only matches weekdays that occur inside the selected date range", () => {
+    const sundayClass = camp({
+      meetingDays: [0],
+      startDate: "2026-07-05",
+      endDate: "2026-07-26",
+    });
+    expect(activityMeetsOnWeekday(sundayClass, new Set([0]), "2026-07-06", "2026-07-11")).toBe(false);
+    expect(activityMeetsOnWeekday(sundayClass, new Set([0]), "2026-07-06", "2026-07-12")).toBe(true);
+  });
+
+  it("infers the weekday for single-day activities without recurrence metadata", () => {
+    const sundayEvent = camp({ startDate: "2026-07-05", endDate: "2026-07-05", meetingDays: undefined });
+    expect(filterCamps([sundayEvent], { weekdays: [0] })).toHaveLength(1);
+    expect(filterCamps([sundayEvent], { weekdays: [1] })).toHaveLength(0);
   });
 
   it("filters by max fee", () => {
