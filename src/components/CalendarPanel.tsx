@@ -4,7 +4,7 @@ import listPlugin from "@fullcalendar/list";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import FullCalendar from "@fullcalendar/react";
 import { useMemo, useState } from "react";
-import { campsToEvents, campsToTimedEvents, timeWindow } from "../lib/calendar";
+import { campsToTimedEvents, timeWindow } from "../lib/calendar";
 import type { Camp } from "../lib/types";
 import type { VenueStyle } from "../lib/venueStyle";
 
@@ -19,7 +19,6 @@ interface Props {
 interface Range {
   start: string;
   end: string;
-  type: string;
 }
 
 export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectCamp, venueStyles }: Props) {
@@ -28,12 +27,8 @@ export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectCamp,
   const [range, setRange] = useState<Range | null>(null);
 
   const events = useMemo<EventInput[]>(() => {
-    // Time-grid views need per-day timed events (scoped to the visible range for
-    // performance); other views use all-day multi-day blocks.
-    const base =
-      range && range.type.startsWith("timeGrid")
-        ? campsToTimedEvents(physical, range.start, range.end)
-        : campsToEvents(physical);
+    // Every view uses actual occurrences and times, scoped to the visible range.
+    const base = range ? campsToTimedEvents(physical, range.start, range.end) : [];
 
     return base.map((e) => {
       const st = venueStyles.get(e.extendedProps.camp.venue);
@@ -69,18 +64,17 @@ export function CalendarPanel({ camps, initialDate, selectedVenue, onSelectCamp,
           listWeek: "list",
         }}
         events={events}
+        displayEventEnd
         height="auto"
         dayMaxEvents={6}
         firstDay={0}
         slotMinTime={slotMinTime}
         slotMaxTime={slotMaxTime}
-        expandRows
         nowIndicator={false}
         datesSet={(arg: DatesSetArg) =>
           setRange({
             start: arg.startStr.slice(0, 10),
             end: arg.endStr.slice(0, 10),
-            type: arg.view.type,
           })
         }
         eventClick={(arg: EventClickArg) => {

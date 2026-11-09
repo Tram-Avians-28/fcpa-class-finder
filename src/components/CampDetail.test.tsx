@@ -58,4 +58,17 @@ describe("CampDetail", () => {
     );
     expect(screen.getByText("18+ yrs")).toBeInTheDocument();
   });
+
+  it("distinguishes meeting weekdays from the overall date range", () => {
+    render(
+      <CampDetail
+        camp={{ ...camp, meetingDays: [1, 3, 5] }}
+        onClose={() => {}}
+        inShortlist={false}
+        onToggleShortlist={() => {}}
+      />,
+    );
+    expect(screen.getByText("Days")).toBeInTheDocument();
+    expect(screen.getByText("Mon, Wed, Fri")).toBeInTheDocument();
+  });
 });

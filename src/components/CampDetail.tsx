@@ -68,6 +68,12 @@ export function CampDetail({ camp, onClose, inShortlist, onToggleShortlist }: Pr
           </dd>
           <dt>Time</dt>
           <dd>{timeLabel(camp) || "—"}</dd>
+          {camp.meetingDays?.length ? (
+            <>
+              <dt>Days</dt>
+              <dd>{camp.meetingDays.map((day) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][day]).join(", ")}</dd>
+            </>
+          ) : null}
           <dt>Ages</dt>
           <dd>{fmtAges(camp)}</dd>
           <dt>Fee</dt>

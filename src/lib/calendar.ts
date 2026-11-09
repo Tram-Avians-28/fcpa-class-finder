@@ -36,42 +36,24 @@ export function timeLabel(camp: Camp): string {
   return `${to12h(camp.startTime)}–${to12h(camp.endTime)}`;
 }
 
-/** Build a FullCalendar all-day event spanning the camp's dates (end exclusive). */
-export function campToEvent(camp: Camp, index: number): CampEvent {
-  const t = timeLabel(camp);
-  return {
-    id: `${camp.catalogId}-${index}`,
-    title: t ? `${camp.title} · ${t}` : camp.title,
-    start: camp.startDate,
-    end: addDays(camp.endDate || camp.startDate, 1),
-    allDay: true,
-    extendedProps: { camp },
-  };
-}
-
-export function campsToEvents(camps: Camp[]): CampEvent[] {
-  return camps
-    .filter((c) => c.startDate)
-    .map((c, i) => campToEvent(c, i));
-}
-
 /**
  * Expand one camp into per-day TIMED events within [rangeStart, rangeEnd)
  * (rangeEnd exclusive, matching FullCalendar's activeEnd). Multi-day camps skip
- * non-meeting days; legacy multi-day camps default to weekdays. Activities without times fall back to an
- * all-day block so they still appear.
+ * non-meeting days; legacy multi-day camps default to weekdays. Activities without
+ * times use one all-day event per occurrence, respecting the same schedule.
  */
 export function expandCampToTimedEvents(
   camp: Camp,
   rangeStart: string,
   rangeEnd: string,
 ): CampEvent[] {
-  if (!camp.startDate || !camp.endDate) return [];
-  if (!camp.startTime || !camp.endTime) return campsToEvents([camp]);
+  if (!camp.startDate) return [];
+  const endDate = camp.endDate || camp.startDate;
+  const timed = Boolean(camp.startTime && camp.endTime);
 
-  const multiDay = camp.startDate !== camp.endDate;
+  const multiDay = camp.startDate !== endDate;
   const lower = camp.startDate < rangeStart ? rangeStart : camp.startDate;
-  const campEndExclusive = addDays(camp.endDate, 1);
+  const campEndExclusive = addDays(endDate, 1);
   const upperExclusive = campEndExclusive < rangeEnd ? campEndExclusive : rangeEnd;
 
   const out: CampEvent[] = [];
@@ -85,9 +67,9 @@ export function expandCampToTimedEvents(
     out.push({
       id: `${camp.catalogId}-${day}`,
       title: camp.title,
-      start: `${day}T${camp.startTime}`,
-      end: `${day}T${camp.endTime}`,
-      allDay: false,
+      start: timed ? `${day}T${camp.startTime}` : day,
+      end: timed ? `${day}T${camp.endTime}` : addDays(day, 1),
+      allDay: !timed,
       extendedProps: { camp },
     });
   }
