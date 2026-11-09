@@ -69,14 +69,44 @@ describe("expandCampToTimedEvents", () => {
     expect(ev.map((e) => e.start.slice(0, 10))).toEqual(["2026-07-08", "2026-07-09"]);
   });
 
-  it("falls back to an all-day block when the camp has no times", () => {
+  it("keeps untimed occurrences on their scheduled days with exclusive ends", () => {
     const ev = expandCampToTimedEvents(
-      camp({ startTime: null, endTime: null }),
+      camp({ startTime: null, endTime: null, meetingDays: [1, 3, 5] }),
       "2026-07-05",
       "2026-07-12",
     );
-    expect(ev).toHaveLength(1);
-    expect(ev[0].allDay).toBe(true);
+    expect(ev.map(({ start, end, allDay }) => ({ start, end, allDay }))).toEqual([
+      { start: "2026-07-06", end: "2026-07-07", allDay: true },
+      { start: "2026-07-08", end: "2026-07-09", allDay: true },
+      { start: "2026-07-10", end: "2026-07-11", allDay: true },
+    ]);
+    expect(expandCampToTimedEvents(camp({ startTime: null }), "2026-08-01", "2026-08-08")).toEqual([]);
+  });
+
+  it("renders the reported aerobic class only on Monday, Wednesday and Friday", () => {
+    const activity = camp({
+      catalogId: "3AD.Q3CK",
+      title: "Aerobic Water Exercise (13-Adult)",
+      startDate: "2026-10-26",
+      endDate: "2026-12-18",
+      startTime: "09:00",
+      endTime: "09:55",
+      meetingDays: [1, 3, 5],
+    });
+    const ev = campsToTimedEvents([activity], "2026-11-08", "2026-11-15");
+    expect(ev.map((event) => event.start)).toEqual([
+      "2026-11-09T09:00", "2026-11-11T09:00", "2026-11-13T09:00",
+    ]);
+    expect(ev.every((event) => !event.allDay && event.end.endsWith("T09:55"))).toBe(true);
+    expect(ev.every((event) => event.extendedProps.camp === activity)).toBe(true);
+  });
+
+  it("preserves weekend-only activities and ignores records without a start date", () => {
+    const ev = campsToTimedEvents([
+      camp({ startDate: "2026-11-08", endDate: "2026-11-15", meetingDays: [0] }),
+      camp({ startDate: "" }),
+    ], "2026-11-08", "2026-11-15");
+    expect(ev.map((event) => event.start)).toEqual(["2026-11-08T09:00"]);
   });
 });
 

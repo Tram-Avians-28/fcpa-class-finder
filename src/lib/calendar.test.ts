@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, campToEvent, campsToEvents, timeLabel, timeWindow, to12h } from "./calendar";
+import { addDays, timeLabel, timeWindow, to12h } from "./calendar";
 import type { Camp } from "./types";
 
 function camp(overrides: Partial<Camp> = {}): Camp {
@@ -30,7 +30,6 @@ describe("addDays", () => {
     expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
   });
 });
-
 describe("to12h / timeLabel", () => {
   it("formats 24h to 12h", () => {
     expect(to12h("09:00")).toBe("9:00 AM");
@@ -54,20 +53,5 @@ describe("timeWindow", () => {
       slotMinTime: "07:00:00",
       slotMaxTime: "19:00:00",
     });
-  });
-});
-
-describe("campToEvent", () => {
-  it("makes an all-day event with an exclusive end date", () => {
-    const e = campToEvent(camp(), 0);
-    expect(e.start).toBe("2026-07-06");
-    expect(e.end).toBe("2026-07-11"); // 1 day past the Friday end
-    expect(e.allDay).toBe(true);
-    expect(e.title).toContain("Softball Camp");
-    expect(e.extendedProps.camp.catalogId).toBe("6J2.B9BH");
-  });
-
-  it("skips camps without a start date", () => {
-    expect(campsToEvents([camp({ startDate: "" })])).toHaveLength(0);
   });
 });
