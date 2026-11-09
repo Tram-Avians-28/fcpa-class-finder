@@ -8,11 +8,12 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run && node --test scripts/catalog-refresh.test.mjs",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "gazetteer": "node scripts/build-gazetteer.mjs public/fcpa-activities.json",
     "activities": "node scripts/fetch-activities.mjs",
+    "camps": "FCPA_CAMPS_ONLY=1 node scripts/fetch-activities.mjs",
     "check-phase": "node scripts/check-phase.mjs"
   },
   "dependencies": {

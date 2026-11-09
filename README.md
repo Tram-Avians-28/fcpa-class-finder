@@ -52,6 +52,10 @@ ORS key during local testing. `.env.local` is gitignored and never included in C
   catalog refreshes intentionally do not replace its legacy-parser tests.
 - `fcpa-camp-spreadsheet.xlsx` — the original planning/reference snapshot described in
   `PLAN.md`; it is historical and is not loaded by the app.
+- The official Excel download can lag behind the current registration catalog. As of
+  November 8, 2026, it still lists summer 2026 camps. Upcoming school-year and winter
+  camps come from the `CAMPS SCHOOL YEAR` category in Parktakes, collected by
+  `npm run activities`; replacing the workbook alone does not refresh the app.
 - `npm run gazetteer` — regenerates `src/data/gazetteer.json` (venue → lat/lng). Set
   `ORS_API_KEY` to enable the ORS geocoding fallback.
 
@@ -62,6 +66,10 @@ npm run activities
 npm test
 npm run build
 ```
+
+Use `npm run camps` to refresh only camp categories while preserving other
+activities. `categoryRefreshedAt` in the generated catalog records when each
+category was last collected. Use git-flow branches as described in `AGENTS.md`.
 
 ## Deploy (GitHub Pages)
 

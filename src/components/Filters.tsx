@@ -12,7 +12,9 @@ interface Props {
   feeBounds: { min: number; max: number; known: number; total: number };
 }
 
-function toggle(list: string[] | undefined, value: string): string[] {
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function toggle<T>(list: T[] | undefined, value: T): T[] {
   const set = new Set(list ?? []);
   if (set.has(value)) set.delete(value);
   else set.add(value);
@@ -45,6 +47,24 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
           onChange={(e) => onChange({ endDate: e.target.value || undefined })}
         />
       </div>
+
+      <h2>
+        Days of week
+        {criteria.weekdays?.length ? <span className="count-pill">{criteria.weekdays.length}</span> : null}
+      </h2>
+      <div className="weekday-picker">
+        {WEEKDAYS.map((day, index) => (
+          <label key={day}>
+            <input
+              type="checkbox"
+              checked={(criteria.weekdays ?? []).includes(index)}
+              onChange={() => onChange({ weekdays: toggle(criteria.weekdays, index) })}
+            />
+            {day}
+          </label>
+        ))}
+      </div>
+      <div className="hint">Matches any checked day; leave all unchecked to show every day.</div>
 
       <h2>{feeBounds.known ? "Cost & age" : "Age"}</h2>
       {feeBounds.known ? (
