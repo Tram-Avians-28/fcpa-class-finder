@@ -76,6 +76,7 @@ export interface FilterCriteria {
   maxFee?: number;
   maxDriveMinutes?: number;
   ageText?: string; // e.g. "7, 9" (two kids) or "6-10" (range); keep camps fitting ANY
+  weekdays?: number[]; // 0=Sunday .. 6=Saturday; keep activities meeting on ANY selected day
   categories?: string[]; // keep camps whose category is in this set
   weekLabels?: string[]; // keep camps whose weekLabel is in this set
   venues?: string[]; // keep camps whose venue (location) is in this set

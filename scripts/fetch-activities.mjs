@@ -1,8 +1,9 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
 import * as XLSX from "xlsx";
+import { preserveUnrefreshedActivities } from "./catalog-refresh.mjs";
 
 const SEARCH_URL =
   "https://fairfax.usedirect.com/FairfaxFCPAWeb/ACTIVITIES/Search.aspx";
@@ -11,7 +12,7 @@ const CAMP_WORKBOOK = new URL("../public/fcpa-camp-spreadsheet.xlsx", import.met
 const CHECKPOINT = join(tmpdir(), "fcpa-activities-progress.json");
 const PAGE_SIZE = 50;
 const MAX_PAGES = 5;
-const CHECKPOINT_VERSION = 3;
+const CHECKPOINT_VERSION = 4;
 const REQUEST_DELAY_MS = Number(process.env.FCPA_REQUEST_DELAY_MS ?? 125);
 
 const FIELD = {
@@ -394,7 +395,7 @@ function excelTimeTo24(value) {
   return typeof value === "string" ? clockTo24(value) : null;
 }
 
-async function mergeCampWorkbook(target, startDate) {
+async function mergeCampWorkbook(target, startDate, allowedCategories) {
   const workbook = XLSX.read(await readFile(CAMP_WORKBOOK));
   const sheetName = workbook.SheetNames.find((name) => /camp/i.test(name));
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
@@ -406,6 +407,8 @@ async function mergeCampWorkbook(target, startDate) {
     const title = String(row["Camp Title"] ?? "").trim();
     const endDate = excelDateToISO(row["End Date"]);
     if (!catalogId || !title || !endDate || endDate < startDate) continue;
+    const category = /extended care/i.test(title) ? "CAMPS EXTENDED CARE PROGRAMS" : "CAMPS SUMMER";
+    if (!allowedCategories.has(category)) continue;
 
     const existing = target.get(catalogId);
     const fee = Number(row.Fee);
@@ -424,7 +427,7 @@ async function mergeCampWorkbook(target, startDate) {
     target.set(catalogId, {
       title,
       description: "",
-      category: /extended care/i.test(title) ? "CAMPS EXTENDED CARE PROGRAMS" : "CAMPS SUMMER",
+      category,
       catalogId,
       community: String(row.Community ?? "").trim(),
       venue,
@@ -513,6 +516,7 @@ async function main() {
   const startDate = process.env.FCPA_START_DATE || todayUS();
   const initialDocument = documentFrom(await request(SEARCH_URL));
   const includeInventory = process.env.FCPA_INCLUDE_INVENTORY === "1";
+  const campsOnly = process.env.FCPA_CAMPS_ONLY === "1";
   const categoryFilter = process.env.FCPA_CATEGORY?.trim().toLowerCase();
   const allCategories = optionList(initialDocument, "#mainContent_ddlCategoryList").filter(
     (option) => option.value && option.label !== "All Categories",
@@ -520,10 +524,20 @@ async function main() {
   const categories = allCategories.filter(
     (option) =>
       (includeInventory || !INVENTORY_CATEGORIES.has(option.label)) &&
+      (!campsOnly || /^CAMPS(?:\s|$)/i.test(option.label)) &&
       (!categoryFilter || option.label.toLowerCase() === categoryFilter),
   );
   if (categoryFilter && categories.length === 0) {
     throw new Error(`Unknown or excluded FCPA category: ${process.env.FCPA_CATEGORY}`);
+  }
+  if (categories.length === 0) throw new Error("No FCPA categories found to refresh.");
+  const scope = categories.map((category) => category.label).sort().join("|");
+  const refreshedCategories = new Set(categories.map((category) => category.label));
+  const partialRefresh = campsOnly || Boolean(categoryFilter);
+  // A targeted refresh must retain every category that was not requested.
+  const previous = partialRefresh ? JSON.parse(await readFile(OUTPUT, "utf8")) : null;
+  if (previous && !Array.isArray(previous.activities)) {
+    throw new Error("Cannot perform a partial refresh without an existing activity catalog.");
   }
   const months = optionList(initialDocument, "#mainContent_ddlMonths").filter(
     (option) => option.value && option.label !== "All Months",
@@ -542,6 +556,7 @@ async function main() {
     const checkpoint = JSON.parse(await readFile(CHECKPOINT, "utf8"));
     if (
       checkpoint.version === CHECKPOINT_VERSION &&
+      checkpoint.scope === scope &&
       checkpoint.startDate === startDate &&
       checkpoint.includeInventory === includeInventory
     ) {
@@ -571,6 +586,7 @@ async function main() {
       CHECKPOINT,
       JSON.stringify({
         version: CHECKPOINT_VERSION,
+        scope,
         startDate,
         includeInventory,
         completedCategories: [...completedCategories],
@@ -580,24 +596,36 @@ async function main() {
     console.log(`[${index + 1}/${categories.length}] ${category.label}: ${categoryActivities.size}`);
   }
 
-  await mergeCampWorkbook(activities, usDateToISO(startDate));
+  await mergeCampWorkbook(activities, usDateToISO(startDate), refreshedCategories);
+  if (partialRefresh) {
+    preserveUnrefreshedActivities(activities, previous.activities, refreshedCategories);
+  }
   const sorted = [...activities.values()].sort(
     (a, b) =>
       a.startDate.localeCompare(b.startDate) ||
       a.title.localeCompare(b.title) ||
       a.catalogId.localeCompare(b.catalogId),
   );
+  const generatedAt = new Date().toISOString();
+  const categoryRefreshedAt = { ...(previous?.categoryRefreshedAt ?? {}) };
+  for (const activity of previous?.activities ?? []) {
+    categoryRefreshedAt[activity.category] ??= previous.generatedAt;
+  }
+  for (const category of refreshedCategories) categoryRefreshedAt[category] = generatedAt;
   const payload = {
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     sourceUrl: SEARCH_URL,
-    startDate: usDateToISO(startDate),
-    excludedCategories: includeInventory
+    startDate: previous?.startDate || usDateToISO(startDate),
+    categoryRefreshedAt,
+    excludedCategories: previous?.excludedCategories ?? (includeInventory
       ? []
-      : allCategories.filter((option) => INVENTORY_CATEGORIES.has(option.label)).map((option) => option.label),
+      : allCategories.filter((option) => INVENTORY_CATEGORIES.has(option.label)).map((option) => option.label)),
     activities: sorted,
   };
   await writeFile(OUTPUT, `${JSON.stringify(payload)}\n`);
+  // Keep checkpoints only for interrupted runs; a later refresh must fetch again.
+  await rm(CHECKPOINT, { force: true });
   console.log(`Wrote ${sorted.length} activities after ${requestCount} requests to ${OUTPUT.pathname}`);
 }
 

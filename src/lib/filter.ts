@@ -12,6 +12,43 @@ export function dateRangesOverlap(
   return aStart <= bEnd && bStart <= aEnd;
 }
 
+function weekday(iso: string): number {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+}
+
+function addDays(iso: string, days: number): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return date.toISOString().slice(0, 10);
+}
+
+/** True when an activity has an occurrence on a selected weekday in the active date range. */
+export function activityMeetsOnWeekday(
+  camp: Camp,
+  selectedDays: Set<number>,
+  rangeStart?: string,
+  rangeEnd?: string,
+): boolean {
+  if (!camp.startDate || !camp.endDate) return false;
+  const lower = rangeStart && rangeStart > camp.startDate ? rangeStart : camp.startDate;
+  const upper = rangeEnd && rangeEnd < camp.endDate ? rangeEnd : camp.endDate;
+  if (lower > upper) return false;
+
+  const meetingDays = camp.meetingDays?.length
+    ? new Set(camp.meetingDays)
+    : camp.startDate === camp.endDate
+      ? new Set([weekday(camp.startDate)])
+      : new Set([1, 2, 3, 4, 5]);
+
+  // At most one week is needed to encounter every possible weekday.
+  for (let date = lower, checked = 0; date <= upper && checked < 7; date = addDays(date, 1), checked += 1) {
+    const day = weekday(date);
+    if (selectedDays.has(day) && meetingDays.has(day)) return true;
+  }
+  return false;
+}
+
 /** Apply all filter criteria to a list of camps. Pure; returns a new array. */
 export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const includeVirtual = f.includeVirtual ?? true;
@@ -19,6 +56,7 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const weekLabels = f.weekLabels && f.weekLabels.length ? new Set(f.weekLabels) : null;
   const venues = f.venues && f.venues.length ? new Set(f.venues) : null;
   const phases = f.phases && f.phases.length ? new Set(f.phases) : null;
+  const weekdays = f.weekdays && f.weekdays.length ? new Set(f.weekdays) : null;
   const ages = f.ageText ? parseAges(f.ageText) : [];
 
   return camps.filter((c) => {
@@ -26,6 +64,8 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
     if (f.startDate && f.endDate && c.startDate && c.endDate) {
       if (!dateRangesOverlap(c.startDate, c.endDate, f.startDate, f.endDate)) return false;
     }
+
+    if (weekdays && !activityMeetsOnWeekday(c, weekdays, f.startDate, f.endDate)) return false;
 
     // Cost
     if (f.maxFee != null && (c.fee == null || c.fee > f.maxFee)) return false;

@@ -119,6 +119,8 @@ button {
 .field .row { display: flex; gap: 8px; }
 
 .checklist { max-height: 180px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+.weekday-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; }
+.weekday-picker label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink); }
 .venue-search { width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; margin-bottom: 6px; }
 
 .phase-row { display: flex; gap: 6px; margin-bottom: 6px; }
