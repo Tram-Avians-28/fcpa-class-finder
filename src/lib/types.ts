@@ -69,17 +69,18 @@ export interface GazetteerEntry {
 
 export type Gazetteer = Record<string, GazetteerEntry>;
 
-/** User-supplied filter criteria. All fields optional → no constraint. */
+/** User-supplied filter criteria. Virtual activities are excluded by default. */
 export interface FilterCriteria {
+  searchText?: string; // case-insensitive; ANY word/quoted phrase, with -word / -"phrase" exclusions
   startDate?: string; // ISO; keep camps overlapping [startDate, endDate]
   endDate?: string;
   maxFee?: number;
   maxDriveMinutes?: number;
   ageText?: string; // e.g. "7, 9" (two kids) or "6-10" (range); keep camps fitting ANY
   weekdays?: number[]; // 0=Sunday .. 6=Saturday; keep activities meeting on ANY selected day
-  categories?: string[]; // keep camps whose category is in this set
+  categories?: string[]; // undefined selects all categories; an empty array selects none
   weekLabels?: string[]; // keep camps whose weekLabel is in this set
   venues?: string[]; // keep camps whose venue (location) is in this set
   phases?: ("green" | "blue")[]; // keep camps whose registration phase is in this set
-  includeVirtual?: boolean; // default true; when a drive-time cap is set, virtual camps are kept only if this is true
+  includeVirtual?: boolean; // default false; when enabled, virtual activities bypass the drive-time cap
 }

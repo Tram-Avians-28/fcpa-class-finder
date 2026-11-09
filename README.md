@@ -4,6 +4,21 @@ Find Fairfax County Park Authority **classes, camps, events, tours, and programs
 date, age, category, location, and drive time on a linked calendar and map. Save a
 printable shortlist of registration codes and open any session in Parktakes Online.
 
+All categories are checked by default; use **Uncheck all categories** or **Check all
+categories** to toggle them together. Unchecking every category shows no activities.
+Virtual activities are excluded unless **Include virtual activities** is checked.
+Search titles and descriptions by entering words and pressing Enter or **Search**.
+Search matches any entered word or quoted phrase, ignoring case, and combines with
+the other filters. Use quotes for an exact phrase (`"water exercise"`) and a minus
+sign directly before a word or phrase to exclude it (`swimming -advanced` or
+`swimming -"deep water"`). Mixed positive terms are alternatives: `"water exercise"
+swimming` matches either the phrase or the word. Exclusions always apply to all
+matches; an exclusions-only query shows everything else. Straight and curly double
+quotes work, repeated whitespace is ignored, and an unfinished quote treats the
+remaining text as a phrase. Phrases must occur within the title or description and
+cannot span both fields.
+**Clear search** removes the query; **Reset filters** also restores the defaults.
+
 The deployed app is fully static. A scheduled GitHub Action collects the public
 registration catalog ahead of time, so visitors do not scrape Fairfax or encounter
 browser CORS restrictions.

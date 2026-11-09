@@ -114,6 +114,58 @@ describe("filterCamps", () => {
       camp({ catalogId: "stem", category: "STEM" }),
     ];
     expect(filterCamps(camps, { categories: ["STEM"] }).map((c) => c.catalogId)).toEqual(["stem"]);
+    expect(filterCamps(camps, {})).toEqual(camps);
+    expect(filterCamps(camps, { categories: [] })).toEqual([]);
+    expect(filterCamps(camps, { categories: ["SPORTS", "STEM"] })).toEqual(camps);
+  });
+
+  it("searches titles and descriptions for ANY word, ignoring case and extra whitespace", () => {
+    const camps = [
+      camp({ catalogId: "title", title: "Swimming Basics" }),
+      camp({ catalogId: "description", title: "Creative Studio", description: "Explore painting and clay." }),
+      camp({ catalogId: "neither", title: "Soccer", description: "Team games outdoors." }),
+    ];
+    expect(filterCamps(camps, { searchText: "  SWIMMING \t PAINTING\n " }).map((c) => c.catalogId))
+      .toEqual(["title", "description"]);
+    expect(filterCamps(camps, { searchText: " \t\n " })).toEqual(camps);
+    expect(filterCamps(camps, { searchText: "astronomy" })).toEqual([]);
+  });
+
+  it("searches only the title and description and treats special characters literally", () => {
+    const camps = [
+      camp({ catalogId: "match", title: "C++ Workshop", description: undefined }),
+      camp({ catalogId: "other", title: "Music", category: "C++", venue: "C++ Studio" }),
+    ];
+    expect(filterCamps(camps, { searchText: "c++" }).map((c) => c.catalogId)).toEqual(["match"]);
+  });
+
+  it("combines search with category, date, age, fee, location, and virtual filters", () => {
+    const camps = [
+      camp({ catalogId: "match", description: "Build robots" }),
+      camp({ catalogId: "category", description: "Build robots", category: "STEM" }),
+      camp({ catalogId: "date", description: "Build robots", startDate: "2026-08-03", endDate: "2026-08-07" }),
+      camp({ catalogId: "age", description: "Build robots", ageMin: 10 }),
+      camp({ catalogId: "fee", description: "Build robots", fee: 200 }),
+      camp({ catalogId: "venue", description: "Build robots", venue: "Lake Fairfax Park" }),
+      camp({ catalogId: "virtual", description: "Build robots", isVirtual: true }),
+      camp({ catalogId: "text", description: "Team games" }),
+    ];
+    expect(filterCamps(camps, {
+      searchText: "robots", categories: ["SPORTS"], startDate: "2026-07-01", endDate: "2026-07-31",
+      ageText: "7", maxFee: 150, venues: ["Audrey Moore Rec Center"],
+    }).map((c) => c.catalogId)).toEqual(["match"]);
+  });
+
+  it("applies quoted phrases and exclusions together with category filtering", () => {
+    const camps = [
+      camp({ catalogId: "match", title: "Water Exercise" }),
+      camp({ catalogId: "excluded", title: "Water Exercise", description: "Advanced techniques" }),
+      camp({ catalogId: "phrase", title: "Water Safety Exercise" }),
+      camp({ catalogId: "category", title: "Water Exercise", category: "STEM" }),
+    ];
+    expect(filterCamps(camps, {
+      searchText: '"water exercise" -advanced', categories: ["SPORTS"],
+    }).map((c) => c.catalogId)).toEqual(["match"]);
   });
 
   it("filters by registration phase (excludes unknown-phase venues)", () => {
@@ -149,12 +201,14 @@ describe("filterCamps", () => {
     expect(filterCamps(camps, { maxDriveMinutes: 30 }).map((c) => c.catalogId)).toEqual(["near"]);
   });
 
-  it("keeps virtual camps regardless of drive-time cap, but respects includeVirtual", () => {
+  it("excludes virtual camps by default and lets opted-in virtual camps bypass the drive-time cap", () => {
     const camps = [
       camp({ catalogId: "virt", isVirtual: true, venue: "Virtual FCPA", driveMinutes: null }),
       camp({ catalogId: "phys", driveMinutes: 15 }),
     ];
-    expect(filterCamps(camps, { maxDriveMinutes: 30 }).map((c) => c.catalogId).sort()).toEqual([
+    expect(filterCamps(camps, {}).map((c) => c.catalogId)).toEqual(["phys"]);
+    expect(filterCamps(camps, { maxDriveMinutes: 30 }).map((c) => c.catalogId)).toEqual(["phys"]);
+    expect(filterCamps(camps, { maxDriveMinutes: 30, includeVirtual: true }).map((c) => c.catalogId).sort()).toEqual([
       "phys",
       "virt",
     ]);

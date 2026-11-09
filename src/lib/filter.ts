@@ -1,5 +1,6 @@
 import { parseAges } from "./ages";
 import { phaseForVenue } from "./phase";
+import { createActivitySearch } from "./search";
 import type { Camp, FilterCriteria } from "./types";
 
 /** True when [aStart,aEnd] overlaps [bStart,bEnd] (inclusive, ISO date strings). */
@@ -51,8 +52,9 @@ export function activityMeetsOnWeekday(
 
 /** Apply all filter criteria to a list of camps. Pure; returns a new array. */
 export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
-  const includeVirtual = f.includeVirtual ?? true;
-  const categories = f.categories && f.categories.length ? new Set(f.categories) : null;
+  const includeVirtual = f.includeVirtual ?? false;
+  const categories = f.categories ? new Set(f.categories) : null;
+  const matchesSearch = createActivitySearch(f.searchText);
   const weekLabels = f.weekLabels && f.weekLabels.length ? new Set(f.weekLabels) : null;
   const venues = f.venues && f.venues.length ? new Set(f.venues) : null;
   const phases = f.phases && f.phases.length ? new Set(f.phases) : null;
@@ -60,6 +62,8 @@ export function filterCamps(camps: Camp[], f: FilterCriteria): Camp[] {
   const ages = f.ageText ? parseAges(f.ageText) : [];
 
   return camps.filter((c) => {
+    if (!matchesSearch(c.title, c.description)) return false;
+
     // Date overlap
     if (f.startDate && f.endDate && c.startDate && c.endDate) {
       if (!dateRangesOverlap(c.startDate, c.endDate, f.startDate, f.endDate)) return false;

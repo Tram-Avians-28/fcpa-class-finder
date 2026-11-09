@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { parseAges } from "../lib/ages";
 import type { FilterCriteria } from "../lib/types";
 
@@ -22,6 +22,10 @@ function toggle<T>(list: T[] | undefined, value: T): T[] {
 }
 
 export function Filters({ criteria, onChange, onReset, categories, weekLabels, venues, feeBounds }: Props) {
+  const [searchText, setSearchText] = useState(criteria.searchText ?? "");
+  useEffect(() => setSearchText(criteria.searchText ?? ""), [criteria.searchText]);
+  const selectedCategories = criteria.categories ?? categories;
+  const allCategoriesSelected = categories.every((cat) => selectedCategories.includes(cat));
   const [venueSearch, setVenueSearch] = useState("");
   const selectedVenues = criteria.venues ?? [];
   const search = venueSearch.trim().toLowerCase();
@@ -30,6 +34,45 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
   );
   return (
     <>
+      <h2>Search activities</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onChange({ searchText: searchText.trim() || undefined });
+        }}
+      >
+        <div className="field">
+          <label htmlFor="activity-search">Title or description</label>
+          <input
+            id="activity-search"
+            type="search"
+            placeholder={'e.g. "water exercise" -advanced'}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            aria-describedby="activity-search-hint"
+          />
+        </div>
+        <div className="filter-actions">
+          <button className="tab" type="submit">Search</button>
+          {searchText || criteria.searchText ? (
+            <button
+              className="clear-link"
+              type="button"
+              onClick={() => {
+                setSearchText("");
+                onChange({ searchText: undefined });
+              }}
+            >
+              Clear search
+            </button>
+          ) : null}
+        </div>
+        <div className="hint" id="activity-search-hint">
+          Matches any word or quoted phrase in the title or description, ignoring case.
+          Use -word or -"exact phrase" to exclude matches. Press Enter or Search to apply.
+        </div>
+      </form>
+
       <h2>Dates</h2>
       <div className="field">
         <label>From</label>
@@ -101,13 +144,21 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
       </div>
 
       <h2>Category</h2>
-      <div className="checklist">
+      <button
+        className="clear-link category-toggle"
+        type="button"
+        disabled={categories.length === 0}
+        onClick={() => onChange({ categories: allCategoriesSelected ? [] : undefined })}
+      >
+        {allCategoriesSelected ? "Uncheck all categories" : "Check all categories"}
+      </button>
+      <div className="checklist" role="group" aria-label="Categories">
         {categories.map((cat) => (
           <label key={cat}>
             <input
               type="checkbox"
-              checked={(criteria.categories ?? []).includes(cat)}
-              onChange={() => onChange({ categories: toggle(criteria.categories, cat) })}
+              checked={selectedCategories.includes(cat)}
+              onChange={() => onChange({ categories: toggle(selectedCategories, cat) })}
             />
             {cat}
           </label>
@@ -162,14 +213,21 @@ export function Filters({ criteria, onChange, onReset, categories, weekLabels, v
         <label>
           <input
             type="checkbox"
-            checked={criteria.includeVirtual ?? true}
+            checked={criteria.includeVirtual ?? false}
             onChange={(e) => onChange({ includeVirtual: e.target.checked })}
           />{" "}
           Include virtual activities
         </label>
       </div>
 
-      <button className="tab" style={{ marginTop: 12 }} onClick={onReset}>
+      <button
+        className="tab"
+        style={{ marginTop: 12 }}
+        onClick={() => {
+          setSearchText("");
+          onReset();
+        }}
+      >
         Reset filters
       </button>
     </>
